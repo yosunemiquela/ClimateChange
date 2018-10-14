@@ -84,7 +84,7 @@ DiameterGrowthRate<-function(stand,dbhq,baq,growthindex){ #increase in basal are
   b1 <- 0.0008236 ##parameters taken from Teck and Hilt
   b2 <- 0.0549439
   st <- b1*(1-exp(-1*b2*dbhinches))
-  pba<- (gi*mfoot)*st #potential basal area growth (foot2/year)
+  pba <- (gi*mfoot)*st #potential basal area growth (foot2/year)
   #pbasqcm <- pba * 929.03 ##potential basal area growth (cm2) ##to compare with Teck and Hilt 1991
   ###convert to diameter growth rate
   b3 <- 0.012 ##modifier

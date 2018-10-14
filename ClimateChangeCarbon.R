@@ -24,25 +24,21 @@ library("stats")
 
 exe<-function(stand,Y,Weather){
   
-  #FRIs<-c(rep(916,30), rep(716,30), rep(458,30), rep(300,30)) ##Path1
-  #FRIs<-c(rep(916,30), rep(304,30), rep(241,30), rep(170,30))  ##Path2
-  FRIs <- c(rep(783,30), rep(212,30), rep(250,30), rep(248,30))  ##Path3
-  #FRIs<-c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
-  #FRIs<-c(rep(783,30), rep(1112,30), rep(735,30), rep(404,30))  ##Path5 
+  #FRIs <- c(rep(916,30), rep(716,30), rep(458,30), rep(300,30)) ##Path1
+  #FRIs <- c(rep(916,30), rep(304,30), rep(241,30), rep(170,30))  ##Path2
+  #FRIs <- c(rep(783,30), rep(212,30), rep(250,30), rep(248,30))  ##Path3
+  #FRIs <- c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
+  FRIs <- c(rep(783,30), rep(1112,30), rep(735,30), rep(404,30))  ##Path5 
   
   MgKg <- 1000    
-  #carbon <- c(3.6,1.4,18.3,7.9,8.5,30.7,1.4,2.7,83.6)* MgKg ##initial carbon pools 916Path1
-  #carbon <- c(3.79,1.5,19.9,8.6,9.4,32.3,3.0,1.5,86.6)* MgKg ##initial carbon pools 916 Path2
-  CPool <- c(3.8,1.5,18.1,7.9,8.4,30.7,1.4,2.7,83.7)* MgKg ##initial carbon pools MFRI916
-  #carbon <- c(3.9,1.8,17.1,8.0,8.0,29.2,1.3,2.6,80.5)* MgKg ##initial carbon poolsMFRI783
-  #carbon <- c(3.7,1.4,16.6,7.2,7.5,29.1,1.3,2.5,80.6)* MgKg ##initial carbon pools MFRI152
-  
-  #carbon <- c(5.7,1.9,25.9,9.1,9.8,38.32,1.7,3.7,107)* MgKg ##initial carbon pools MFRI916
-  #carbon <- c(3.6,1.4,17.6,7.7,8.3,29.3,1.4,2.6,44.2)* MgKg ##initial carbon poolsMFRI783
-  #carbon <- c(3.8,1.8,16.7,8.1,8.3,28.2,1.4,2.6,42.9)* MgKg ##initial carbon pools MFRI152
+  #CPool <- c(4.9,1.5,24.9,9.0,9.1,35.1,1.6,3.4,95.0)* MgKg Path1
+  #CPool <- c(5.0,1.6,27.0,9.7,10.0,36.8,1.7,3.7,97.8)* MgKg ##Path2
+  #CPool <- c(5.0,1.5,24.9,8.9,8.8,35.3,1.5,3.4,95.5)* MgKg ##Path3
+  #CPool <- c(5.0,1.8,24.8,9.2,8.7,35.7,1.5,3.2,94.9)* MgKg ##Path4
+  CPool <- c(4.8,1.6,22.3,8.2,8.1,33.1,1.4,3.1,91.4)* MgKg ##Path5
   
 
-  Sampled <- subpop (path=c("Pathway11","Pathway14","Pathway15","Pathway16"), d=PoolPlots2)
+  Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2)
   Sampled <- Sampled[sample(1:dim(Sampled)[1], size=1, replace=T),]
   PlotID <- Sampled[1,2]
   WeatherPlot <- Sampled[1,1]
@@ -56,7 +52,7 @@ exe<-function(stand,Y,Weather){
   MAT <- as.numeric(ClimateData.List[,3]) ## Mean annual temperatures 1981-2100
   DC <- as.numeric(DroughtCode.List[,3]) ## Projected Drought Codes 1981-2100
   GrowthIndex <- GI(ClimateData.List)  ##Growth Index
-  GrowthIndex[1] <- 14
+  GrowthIndex[1] <- 13.7
   Tree.List <- GetTrees (Tree,Plots=PlotID)
   as.character(Tree.List$DBH)
   as.factor(Tree.List$ESSENCE)
@@ -138,7 +134,6 @@ exe<-function(stand,Y,Weather){
   DroughtCode <- numeric(Y)
   EmpiricalTemperature <- numeric(Y)
   CCGrowthIndex <- numeric(Y)
-  FireSize <- numeric(Y)
   FireSeason <- numeric(Y)
   BALost <- numeric(Y)
   Delta_BA <- numeric(Y)
@@ -171,8 +166,8 @@ exe<-function(stand,Y,Weather){
   TotalLiveBiomass <- numeric(Y)
   AppliedDecayRates <- matrix(0, Y, 9, byrow = TRUE)
   NetEcosystemProduction <- numeric(Y)
-  Rh<-numeric(Y)
-  MFRI<-numeric(Y)
+  Rh <- numeric(Y)
+  MFRI <- numeric(Y)
   CarbonCombusted <- numeric(Y)
   AnnualBiomassRecruits <- numeric(Y)
   CarbonEmissions1 <- numeric(Y) 
@@ -180,19 +175,21 @@ exe<-function(stand,Y,Weather){
   CarbonEmissions3 <- numeric(Y) 
   NetBiomeProduction <- numeric(Y) 
   FuelConsumed <- numeric(Y) 
-
+  PlotIDs <- numeric(Y)
+  LPeriod <- as.numeric(Y)
+  Periods <- matrix(0,120,Y, byrow=TRUE)  
   
   
   for (y in 1:Y){ #Things that have to be reinitialized and updated
     
     HeadIntensity <- sample(IntensitiesWeighted, size=1, replace=F)
-    I<-HeadIntensity
-    Istart <-I
-    shannon<-diversity(stand[5:15], index="shannon", MARGIN=1, base=exp(1)) ##updated shannon
-    Structure[y]<-shannon
-    Firedeaths<-rep(0,15)
-    BALost[y]<-0
-    bay<-sum(stand*baq)
+    I <- HeadIntensity
+    Istart <- I
+    shannon <- diversity(stand[5:15], index="shannon", MARGIN=1, base=exp(1)) ##updated shannon
+    Structure[y] <- shannon
+    Firedeaths <- rep(0,15)
+    BALost[y] <- 0
+    bay <- sum(stand*baq)
     SnagsS <- 0
     SnagbranchesS <- 0
     SnagFoliageS <- 0
@@ -311,7 +308,7 @@ exe<-function(stand,Y,Weather){
     NEP <- (NPP-SoilCAtmFlux)
     
     
-    # Mortality (senescence and fire)
+    # Mortality (senescence)
     surviving <- mortality(stand, dbhq, baq)
     surviving[1:4] <- SaplingSurvival
     Senescencedeaths <- rbinom(N1s, stand, 1 - surviving)
@@ -349,7 +346,6 @@ exe<-function(stand,Y,Weather){
       stand <- newstand # update stand after a fire
       InitialIntensity[y] <- I # adjusted intensity using Catchpole et.al 1992
       DroughtCode[y] <- DC[y]
-      FireSize [y] <- firesize
       BALost[y] <- severity
       C <- 1.185*exp(-4.252)*exp(0.671*log(FuelLoad))*exp(0.71*log(DC[y]))
       pFF <- min(C/(CPool[5] + CPool[6]),1)
@@ -369,7 +365,13 @@ exe<-function(stand,Y,Weather){
     # Calculate carbon from fire-derived and senescencent trees
     
     deaths <- Senescencedeaths + Firedeaths
-    DeltaBA<- BAIncrement-sum(deaths*baq) ##net basal area increment after mortality (fire and senescence) and growth
+    Muertos[y,] <- deaths
+    DeltaBA <- BAIncrement - sum(deaths*baq) ##net basal area increment after mortality (fire and senescence) and growth
+    DeltaStand <- sum(stand)  ##net change in density after mortality (fire and senescence) and growth
+    if(sum(stand<0)>0)
+      stop(message="neg count 3")
+    Delta_BA[y] <- DeltaBA
+    DeltaN[y,] <- deaths+growth
     SnagCpools <- SnagsCarbon(Senescencedeaths,Firedeaths,BioMassCarbon)
     SnagsS <- SnagCpools$SnagC
     SnagbranchesS <- SnagCpools$SnagbranchC
@@ -411,7 +413,7 @@ exe<-function(stand,Y,Weather){
     
     # Dynamically updating crown ratios and heights of recruits (natural regenerated and fire derived)
     xH <- Top + adi  # Heightgrowth
-    dH <- xH-Top     # deltaheight
+    dH <- xH - Top     # deltaheight
     MaximumCR <- (CCR * Top + dH) / xH
     TotalN <- stand + c(0, growth[1:n - 1])
     TotalN[1] <- TotalN[1] + Recruits[y]
@@ -447,10 +449,9 @@ exe<-function(stand,Y,Weather){
     DeltaN[y, ] <- deaths + growth
     Muertos[y, ] <- deaths
     SnagCProduction [y] <- CMortality
+    AppliedDecayRates[y, ] <- AppDecayRates
     SnagCProductionS [y] <- CMortalityS
     SnagCProductionF [y] <- CMortalityF
-    CarbonEmissions1[y] <- CE
-    CarbonEmissions2[y] <- CC2
     CarbonEmissions3[y] <- carbon.emissions
     TotalLiveBiomass[y] <-   Biomass
     DOMC_Pool[y, ] <- CPool # Nine DOM carbon pools
@@ -486,189 +487,17 @@ exe<-function(stand,Y,Weather){
             SnagCProduction=SnagCProduction,DOMC_Pool=DOMC_Pool,DOM_Flux=DOM_Flux,
             DOM_Inputs=DOM_Inputs,NetPrimaryProductivity=NetPrimaryProductivity, 
             Rh=Rh,NetEcosystemProduction=NetEcosystemProduction, CarbonEmissions1=CarbonEmissions1,
-            CarbonEmissions2= CarbonEmissions2,CarbonEmissions3=CarbonEmissions3,
-            NetEcosystemProduction = NetEcosystemProduction,NetBiomeProduction=NetBiomeProduction,
+            CarbonEmissions2= CarbonEmissions2,CarbonEmissions3=CarbonEmissions3,NetBiomeProduction=NetBiomeProduction,
             FuelConsumed=FuelConsumed,SnagCProductionS=SnagCProductionS,SnagCProductionF=SnagCProductionF,
-            SnagCProduction=SnagCProduction)
+            SnagCProduction=SnagCProduction, DroughtCode=DroughtCode)
   
   return(res)
 }
 
 
-abc<-exe(stand,120,Weather)
 
 
-n.iter <- 1000#plots to check
-Y <- 120
-Weather <- Weather
-Latitude_s <- matrix(0,n.iter,Y,byrow=T)
-Longitude_s <- matrix(0,n.iter,Y,byrow=T)
-MFRI_s <- matrix(0,n.iter,Y,byrow=T)
-#stand dynamics
-Ba_s <- matrix(0,n.iter,Y,byrow=T)
-Size_list <- vector("list", n.iter) # create list
-PreFireStand_s<-vector("list", n.iter)
-Transition_list <- vector("list", n.iter)
-Structure_s<-matrix(0,n.iter,Y,byrow=T)
-Recruits_s<-matrix(0,n.iter,Y,byrow=T)
-Heights_list<-vector("list", n.iter)
-CR_list<-vector("list", n.iter)
-GrowthIndex_list <- vector ("list", n.iter)
-DiameterGrowth_list<- vector("list", n.iter)
-DecayRates_list<-vector("list", n.iter)
 
-
-#carbon dynamics
-CarbonBiomass1_s<- matrix(0,n.iter,Y,byrow=T)
-CarbonBiomass2_s<- matrix(0,n.iter,Y,byrow=T)
-DOM_Pool_list<- vector("list", n.iter)
-DOM_Inputs_list<- vector("list", n.iter)
-DOM_Flux_s<-matrix(0,n.iter,Y,byrow=T)
-PrimaryProductivity_s<-matrix(0,n.iter,Y,byrow=T)
-NetEcosystemProduction_s<-matrix(0,n.iter,Y,byrow=T)
-Rh_s<-matrix(0,n.iter,Y,byrow=T)
-Turnover_s<-matrix(0,n.iter,Y,byrow=T)
-TotalLiveBiomass_s<-matrix(0,n.iter,Y,byrow=T)
-AbovegroundLiveBiomass_list<-vector("list",n.iter)
-BelowgroundLiveBiomass_list<-vector("list",n.iter)
-EmpiricalTemperature_list <- vector ("list", n.iter)
-###Fire disturbance
-Severity_s<-matrix(0,n.iter,Y,byrow=T)
-InitialIntensity_s<-matrix(0,n.iter,Y,byrow=T)
-NF_s<-numeric(n.iter)
-
-for(i in 1:n.iter){
-  Size_list[[i]] <- matrix(0,Y,15,byrow=T)
-  DiameterGrowth_list[[i]]<- matrix(0,Y,15,byrow=T)
-  PreFireStand_s[[i]]<-matrix(0,Y,15,byrow=T)
-  Transition_list[[i]]<-matrix(0,Y,15,byrow=T)
-  Heights_list[[i]]<-matrix(0,Y,15,byrow=T)
-  CR_list[[i]]<-matrix(0,Y,15,byrow=T)
-  AbovegroundLiveBiomass_list[[i]]<-matrix(0,Y,3,byrow=T)
-  BelowgroundLiveBiomass_list[[i]]<-matrix(0,Y,2,byrow=T)
-  DOM_Pool_list[[i]]<- matrix(0,Y,9,byrow=T)
-  DOM_Inputs_list[[i]]<- matrix(0,Y,9,byrow=T)
-  DecayRates_list[[i]]<- matrix(0,Y,9,byrow=T)
-  
-}
-
-do.call(rbind, Size_list)
-do.call(rbind, Transition_list)
-do.call(rbind, DiameterGrowth_list)
-do.call(rbind, Heights_list)
-do.call(rbind, CR_list)
-do.call(rbind, AbovegroundLiveBiomass_list)
-do.call(rbind, BelowgroundLiveBiomass_list)
-do.call(rbind, DOM_Pool_list)
-do.call(rbind, DOM_Inputs_list)
-do.call(rbind, DecayRates_list)
-
-for (i in 1:n.iter){
-  CarbonModel<-exe(stand,Y, Weather)
-  Latitude_s [i,] <- CarbonModel$Latitudes
-  Longitude_s [i,] <- CarbonModel$Longitudes
-  MFRI_s [i,] <- CarbonModel$MFRI
-  Ba_s[i,]<-CarbonModel$BA
-  Structure_s[i,]<-CarbonModel$Structure
-  Recruits_s[i,]<-CarbonModel$Recruits
-  Size_list[[i]]<-CarbonModel$Size
-  DiameterGrowth_list[[i]] <-CarbonModel$DiameterGrowth
-  PreFireStand_s[[i]] <-CarbonModel$PreFireStand
-  Transition_list[[i]]<-CarbonModel$Transition
-  Heights_list[[i]]<-CarbonModel$Heights
-  CR_list[[i]] <-CarbonModel$CR
-  TotalLiveBiomass_s[i,]<-CarbonModel$TotalLiveBiomass
-  AbovegroundLiveBiomass_list[[i]]<-CarbonModel$ACB
-  BelowgroundLiveBiomass_list[[i]]<-CarbonModel$BCB
-  EmpiricalTemperature_list[[i]] <-CarbonModel$EmpiricalTemperature
-  GrowthIndex_list [[i]] <- CarbonModel$CCGrowthIndex
-  CarbonBiomass1_s[i,] <-CarbonModel$CarbonBiomass1
-  CarbonBiomass2_s[i,]<-CarbonModel$CarbonBiomass2
-  PrimaryProductivity_s[i,]<-CarbonModel$NetPrimaryProductivity
-  NetEcosystemProduction_s[i,]<-CarbonModel$NetEcosystemProduction
-  Rh_s[i,]<-CarbonModel$Rh
-  Turnover_s[i,]<-CarbonModel$Turnover
-  DOM_Pool_list[[i]]<-CarbonModel$DOMC_Pool
-  DecayRates_list[[i]]<-CarbonModel$AppliedDecayRates
-  DOM_Flux_s[i,] <-CarbonModel$DOM_Flux
-  DOM_Inputs_list[[i]] <-CarbonModel$DOM_Inputs
-  Severity_s[i,]<-CarbonModel$BALost
-  InitialIntensity_s[i,]<-CarbonModel$InitialIntensity
-  NF_s[i]<-CarbonModel$NF
-  print(i)
-}
-
-
-Lat<-Latitude_s[,1]
-Lon<-Longitude_s[,1]
-NEP <- colMeans(NetEcosystemProduction_s) ##means over all replicates
-NPP <- colMeans(PrimaryProductivity_s)
-SoilResp <- colMeans(DOM_Flux_s)
-MerchantableStemwood<-sapply(AbovegroundLiveBiomass_list, function(m) m[1:120,1])
-Otherwood<-sapply(AbovegroundLiveBiomass_list, function(m) m[1:120,2])
-Foliage<-sapply(AbovegroundLiveBiomass_list, function(m) m[1:120,3])
-CoarseRoots<-sapply(BelowgroundLiveBiomass_list, function(m) m[1:120,1])
-FineRoots<-sapply(BelowgroundLiveBiomass_list, function(m) m[1:120,2])
-AGTotal<-MerchantableStemwood+Otherwood+Foliage #this should be the same as in sapplyTotallivem[500,1]
-BGTotal<-CoarseRoots+FineRoots
-BiomassLiveCStock<-AGTotal+BGTotal
-Snags<-sapply(DOM_Pool_list, function(m) m[1:120,1]) #
-SnagBranch<-sapply(DOM_Pool_list, function(m) m[1:120,2])
-AGMedium<-sapply(DOM_Pool_list, function(m) m[1:120,3])
-AGfast<-sapply(DOM_Pool_list, function(m) m[1:120,4])
-AGveryfast<-sapply(DOM_Pool_list, function(m) m[1:120,5])
-AGslow<-sapply(DOM_Pool_list, function(m) m[1:120,6])
-BGveryfast<-sapply(DOM_Pool_list, function(m) m[1:120,7])
-BGfast<-sapply(DOM_Pool_list, function(m) m[1:120,8])
-BGslow<-sapply(DOM_Pool_list, function(m) m[1:120,9])
-SoilCStock<-Snags+SnagBranch+AGMedium+AGfast+AGveryfast+AGslow+BGveryfast+BGfast+BGslow
-EcosystemCStock<-BiomassLiveCStock+SoilCStock
-MineralSoil<-BGveryfast+BGslow
-Organic<-AGveryfast+AGslow
-WoodyDebris<-Snags+SnagBranch+AGfast+AGMedium
-Org<-rowMeans(Organic)
-Eco<-rowMeans(EcosystemCStock)
-Min<-rowMeans(MineralSoil)
-Soil<-rowMeans(SoilCStock)
-WD<-rowMeans(WoodyDebris)
-Bio<-rowMeans(BiomassLiveCStock)
-agt<-rowMeans(AGTotal)
-bgt<-rowMeans(BGTotal)
-sn<- rowMeans(Snags)
-sb<-rowMeans(SnagBranch)
-am<-rowMeans(AGMedium)
-af <- rowMeans(AGfast)
-avf <-rowMeans (AGveryfast)
-asl <- rowMeans(AGslow)
-bgvf <- rowMeans(BGveryfast)
-bgf <- rowMeans(BGfast)
-bgs <- rowMeans (BGslow)
-
-
-Path3<-cbind(NEP,NPP,SoilResp,Bio,Soil,Eco,Min,Org,WD,agt,bgt,
-             sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
-Path5Coor<-cbind(Lat,Lon)
-save("Path5", file="F:\\Universite_Laval\\YOSDATA\\LAVAL\\ModelOutput3\\Simulations2\\Path5.RData")
-save("Path3", file="CCPath3.RData")
-save("Path5Coor", file="F:\\Universite_Laval\\YOSDATA\\LAVAL\\ModelOutput3\\Simulations2\\Path5Coordinates.RData")
-GI<-rowMeans(sapply(GrowthIndex_list, function(m) m[]))
-AnnTemp<-rowMeans(sapply(EmpiricalTemperature_list, function(m) m[]))
-xx<-cbind(GI,AnnTemp)
-save("xx", file="F:\\Universite_Laval\\YOSDATA\\LAVAL\\ModelOutput3\\Simulations2\\GrowthTempPath5.RData")
-save("DiameterGrowth_list", file="F:\\Universite_Laval\\YOSDATA\\LAVAL\\ModelOutput3\\Simulations2\\DiameterGrowthPath5.RData")
-##DecompositionratesCarbonPools
-SnagsDecorate<-rowMeans(sapply( DecayRates_list, function(m) m[1:120,1]))
-SnagsBranchDecorate<-rowMeans(sapply(DecayRates_list, function(m) m[1:120,2]))
-MediumDecRate<-rowMeans(sapply(DecayRates_list, function(m) m[1:120,3]))
-agfastDecRate<-rowMeans(sapply(DecayRates_list, function(m) m[1:120,4]))
-agvfDecRate<-rowMeans(sapply(DecayRates_list, function(m) m[1:120,5]))
-agsDecRate<-rowMeans(sapply(DecayRates_list, function(m) m[1:120,6]))
-bgvfDecRate<-rowMeans(sapply(DecayRates_list, function(m) m[1:120,7]))
-bgfDecRate<-rowMeans(sapply(DecayRates_list, function(m) m[1:120,8]))
-bgsDecRate<-rowMeans(sapply(DecayRates_list, function(m) m[1:120,9]))
-ApDecRates<-cbind(SnagsDecorate,SnagsBranchDecorate,MediumDecRate,agfastDecRate,
-                  agvfDecRate,bgvfDecRate,bgfDecRate,bgsDecRate)
-save("ApDecRates", file="F:\\Universite_Laval\\YOSDATA\\LAVAL\\ModelOutput3\\Simulations2\\DecayRatePath5.RData")
 
 
 
