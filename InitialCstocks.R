@@ -28,10 +28,15 @@ exe<-function(stand,Y,FRI){
   #FRI<-916 ##Path1
   #FRIs <-916  ##Path2
   #FRIs <- 783  ##Path3
-  #FRIs <-152  ##Path4
+  FRI <- 152  ##Path4
   #FRIs <-783  ##Path5 
   CPool <- c(5.8, 2.1, 24, 9.89, 9.0, 36, 1.69, 3.75, 74) * MgKg
-  Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2)
+  #Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21"), d=PoolPlots2) ##path 1
+  #Sampled <- subpop (path=c("Pathway22","Pathway23","Pathway24"), d=PoolPlots2) ##path 2
+  #Sampled <- subpop (path=c("Pathway11","Pathway14","Pathway15","Pathway16"), d=PoolPlots2) ##path 3
+  Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
+  #Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
+ 
   Sampled <- Sampled[sample(1:dim(Sampled)[1], size=1, replace=T),]
   PlotID <- Sampled[1,2]
   WeatherPlot <- Sampled[1,1]
@@ -43,7 +48,7 @@ exe<-function(stand,Y,FRI){
   ClimateData.List <- CorrectDupli(ClimateData) ##to fix duplicates
   MATs <- as.numeric(ClimateData.List[1:30,3]) ## Historic mean annual temperatures 
   DCs <- as.numeric(DroughtCode.List[1:30,3]) ## Historic drought Codes 
-  GrowthIndex <- GI(ClimateData.List)  ##Growth Index
+  GrowthIndex <- GrowthIndexfunction(ClimateData.List)  ##Growth Index
   GrowthIndex[1] <- 14
   GrowthIndeces <- GrowthIndex[1:30] ## Historic growth index
   Tree.List <- GetTrees (Tree,Plots=Sampled)
@@ -482,12 +487,11 @@ exe<-function(stand,Y,FRI){
  }
 
 
-abc<-exe(stand,100,916)
+#abc<-exe(stand,100,916)
 
 
-n.iter <- 1000#plots to check
-Y<- 1000
-FRI <- 783
+n.iter <- 1000 #plots to check
+Y <- 2400
 #stand dynamics
 Ba_s<- matrix(0,n.iter,Y,byrow=T)
 Size_list <- vector("list", n.iter) # create list

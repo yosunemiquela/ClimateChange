@@ -22,23 +22,27 @@ library("stats")
 
 
 
-exe<-function(stand,Y,Weather){
+exe <- function(stand,Y,Weather){
   
   #FRIs <- c(rep(916,30), rep(716,30), rep(458,30), rep(300,30)) ##Path1
   #FRIs <- c(rep(916,30), rep(304,30), rep(241,30), rep(170,30))  ##Path2
   #FRIs <- c(rep(783,30), rep(212,30), rep(250,30), rep(248,30))  ##Path3
-  #FRIs <- c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
-  FRIs <- c(rep(783,30), rep(1112,30), rep(735,30), rep(404,30))  ##Path5 
+  FRIs <- c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
+  #FRIs <- c(rep(783,30), rep(1112,30), rep(735,30), rep(404,30))  ##Path5 
   
   MgKg <- 1000    
-  #CPool <- c(4.9,1.5,24.9,9.0,9.1,35.1,1.6,3.4,95.0)* MgKg Path1
+  #CPool <- c(4.9,1.5,24.9,9.0,9.1,35.1,1.6,3.4,95.0)* MgKg #Path1
   #CPool <- c(5.0,1.6,27.0,9.7,10.0,36.8,1.7,3.7,97.8)* MgKg ##Path2
   #CPool <- c(5.0,1.5,24.9,8.9,8.8,35.3,1.5,3.4,95.5)* MgKg ##Path3
-  #CPool <- c(5.0,1.8,24.8,9.2,8.7,35.7,1.5,3.2,94.9)* MgKg ##Path4
-  CPool <- c(4.8,1.6,22.3,8.2,8.1,33.1,1.4,3.1,91.4)* MgKg ##Path5
+  CPool <- c(5.0,1.8,24.8,9.2,8.7,35.7,1.5,3.2,94.9)* MgKg ##Path4
+  #CPool <- c(4.8,1.6,22.3,8.2,8.1,33.1,1.4,3.1,91.4)* MgKg ##Path5
   
 
-  Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2)
+  #Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21"), d=PoolPlots2) ##path 1
+  #Sampled <- subpop (path=c("Pathway22","Pathway23","Pathway24"), d=PoolPlots2) ##path 2
+  #Sampled <- subpop (path=c("Pathway11","Pathway14","Pathway15","Pathway16"), d=PoolPlots2) ##path 3
+  Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
+  #Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
   Sampled <- Sampled[sample(1:dim(Sampled)[1], size=1, replace=T),]
   PlotID <- Sampled[1,2]
   WeatherPlot <- Sampled[1,1]
@@ -51,8 +55,8 @@ exe<-function(stand,Y,Weather){
   ClimateData.List <- CorrectDupli(ClimateData) ##to fix duplicates
   MAT <- as.numeric(ClimateData.List[,3]) ## Mean annual temperatures 1981-2100
   DC <- as.numeric(DroughtCode.List[,3]) ## Projected Drought Codes 1981-2100
-  GrowthIndex <- GI(ClimateData.List)  ##Growth Index
-  GrowthIndex[1] <- 13.7
+  GrowthIndex <- GrowthIndexfunction(ClimateData.List)  ##Growth Index
+  GrowthIndex[1] <- 13.9
   Tree.List <- GetTrees (Tree,Plots=PlotID)
   as.character(Tree.List$DBH)
   as.factor(Tree.List$ESSENCE)
