@@ -211,36 +211,36 @@ exe<-function(stand,Y,FRI){
     Decayrate[8] <- AppDecayRates[8]
     Decayrate[9] <- AppDecayRates[9]
     
+   CarbonPoolTransferMatrix <- matrix(c(
+    Decayrate[1] * 0.83, (1-Decayrate[1]-0.032), 0, 0.032, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
+    Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
+    Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
+    Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
+    Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
+    Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
+    Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
+    Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
+    Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]), nrow = 9, ncol = 10, byrow = TRUE)
+    colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
+    "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
+    rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
+    "BGveryfast", "BGfast", "BGslow")
+    
     #CarbonPoolTransferMatrix <- matrix(c(
-    #Decayrate[1] * 0.83, (1-Decayrate[1]-0.032), 0, 0.032, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
+    #Decayrate[1] * 0.83, (1-Decayrate[1]-0.08), 0, 0.08, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
     #Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
     #Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
     #Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
     #Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
     #Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
     #Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
-    #Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
-    #Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]), nrow = 9, ncol = 10, byrow = TRUE)
+    # Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
+    #Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]
+    #), nrow = 9, ncol = 10, byrow = TRUE)
     #colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
-    #"AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
+    #                                      "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
     #rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
-    #"BGveryfast", "BGfast", "BGslow")
-    
-    CarbonPoolTransferMatrix <- matrix(c(
-      Decayrate[1] * 0.83, (1-Decayrate[1]-0.08), 0, 0.08, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
-      Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
-      Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
-      Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
-      Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
-      Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
-      Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
-      Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
-      Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]
-    ), nrow = 9, ncol = 10, byrow = TRUE)
-    colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
-                                            "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
-    rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
-                                            "BGveryfast", "BGfast", "BGslow")
+    #   "BGveryfast", "BGfast", "BGslow")
     
     
     
@@ -581,7 +581,7 @@ for (i in 1:n.iter){
 
 
 
-Year <- 1000
+Year <- 2400
 plots <- 1000
 BasalArea<-Ba_s[,Year]
 #Recruitment<-Recruits_s[,Year]
@@ -608,13 +608,11 @@ SoilCStock<-Snags+SnagBranch+AGMedium+AGfast+AGveryfast+AGslow+BGveryfast+BGfast
 EcosystemCStock<-BiomassLiveCStock+SoilCStock
 FireReturnInterval<-rep(FRI,plots)
 CEmissions <- CarbonEmissions_s[1:plots,Year]
+Gindex <- sapply(GrowthIndex_list, function(m) m[Year])
 
-
-
-
-Initial916NoClimatePath1 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock)
-Initial916NoClimatePath2 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock)
-Initial783NoClimatePath3 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock)
-Initial152NoClimatePath4 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock)
-Initial783NoClimatePath5 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock)
-colMeans(Initial783NoClimatePath5)
+Initial916NoClimatePath1 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock,Gindex)
+Initial916NoClimatePath2 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock,Gindex)
+Initial783NoClimatePath3 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock,Gindex)
+Initial152NoClimatePath4 <- cbind(CEmissions,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock,Gindex)
+Initial783NoClimatePath5 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock,Gindex)
+colMeans(Initial152NoClimatePath4)

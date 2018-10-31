@@ -57,7 +57,7 @@ CorrectDupli<-function(x){
 ## Stand dynamics module ##
 ###########################
 
-GI<-function(ClimateData.List){ ##climate sensitive growth index
+GrowthIndexfunction <- function(ClimateData.List){ ##climate sensitive growth index
   b0 <- 6.2
   b1 <- 0.2357
   b2 <- 0.01003
