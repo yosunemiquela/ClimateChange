@@ -65,14 +65,22 @@ yos<-approx(knownpoints$x,knownpoints$y, xout=aim, rule=1)
 ProportionalIntensities<-yos$y
 ProportionalIntensities<-na.omit(ProportionalIntensities)
 
-PI<-sample(ProportionalIntensities, 240000, replace = T, prob = NULL)
 Intensities$SupFin<-as.numeric(Intensities$SupFin)
 TotalFireSize<-sum(Intensities$SupFin)
 Intensities$Weight<-Intensities$SupFin/TotalFireSize
+Intensities$Numero<-as.numeric(Intensities$Numero)
+Intensities<-Intensities[which(abs(Intensities$SupFin) == ave(Intensities$SupFin, Intensities$Numero, 
+                                                              FUN=function(x) max(abs(x)))), ]##458
 IntensitiesWeighted<-sample(Intensities$INT,size=240000, replace=T, prob=Intensities$Weight)
-IntensitiesWeighted <- as.numeric(IntensitiesWeighted)
-length(IntensitiesWeighted)##
-mean(IntensitiesWeighted)
+Intensities$ISec<- as.numeric(Intensities$ISec)
+
+DroughtCodes_all <- GetDC(DroughtCode, PoolPlots2) 
+Drought_all_historical <- subset(DroughtCodes_all,Year=="Historical")
+Drought_all_historical_plotmean <- as.data.frame(aggregate (Drought_all_historical$DC~Drought_all_historical$Concatanate, FUN=mean))
+colnames(Drought_all_historical_plotmean) <- c("ID","DC")  
+###Check for differences between Biosim and SOPFEU DC
+t.test(Intensities$ISec,Drought_all_historical_plotmean$DC)
+###DC by SOPFEU is significatly higher t=13.31 p<0.0001
 
 ##BioSimdata
 # 
