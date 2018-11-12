@@ -3,17 +3,17 @@
 
 
 exe <- function(stand,Y) {
-  FRI <- 916 ##Path1
-  #FRI <- 916 ##Path2
-  #FRI <- 783 ##Path3
-  #FRI <- 152  ##Path4
-  #FRI <- 783 ##Path5 
+  #FRIs <- c(rep(916,30), rep(716,30), rep(458,30), rep(300,30)) ##Path1
+  #FRIs <- c(rep(916,30), rep(304,30), rep(241,30), rep(170,30))  ##Path2
+  #FRIs <- c(rep(783,30), rep(212,30), rep(250,30), rep(248,30))  ##Path3
+  #FRIs <- c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
+  FRIs <- c(rep(783,30), rep(1112,30), rep(735,30), rep(404,30))  ##Path5 
   
-  Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21"), d=PoolPlots2) ##path 1
+  #Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21"), d=PoolPlots2) ##path 1
   #Sampled <- subpop (path=c("Pathway22","Pathway23","Pathway24"), d=PoolPlots2) ##path 2
   #Sampled <- subpop (path=c("Pathway11","Pathway14","Pathway15","Pathway16"), d=PoolPlots2) ##path 3
   #Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
-  #Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
+  Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
   Sampled <- Sampled[sample(1:dim(Sampled)[1], size=1, replace=T),]
   PlotID <- Sampled[1,2]
   WeatherPlot <- Sampled[1,1]
@@ -53,7 +53,6 @@ exe <- function(stand,Y) {
   biocar_factor <- 0.5
   MgKg <- 1000
   SaplingSurvival <- 0.98  # sapling survival of different initial sizes (Matthias et al. 2003)
-  pBurn <- 1/FRI
   NF <- 0
   fire.year <- NULL
   RegenLagTime <- 27   # assume it takes a 3-yr old natural seedling 27 yearss to grow to
@@ -216,6 +215,9 @@ exe <- function(stand,Y) {
     DC <-  sample(DCs, size=1, replace=F)
     shannon <- diversity(stand[5:15], index = "shannon", MARGIN = 1, base = exp(1)) ##updated shannon
     Structure[y] <- shannon
+    FRI <- FRIs[y]
+    MFRI[y] <- FRI
+    pBurn <- 1/FRI
     Firedeaths <- rep(0, 15)
     SnagsS <- 0
     SnagbranchesS <- 0
@@ -239,7 +241,6 @@ exe <- function(stand,Y) {
     bay <- sum(stand * baq)
     MAT <- 0.36
     EmpiricalTemperature[y] <- MAT
-    MFRI[y] <- FRI
     AppDecayRates <- Decayrates(MAT)
     AppliedDecayRates[y, ] <- AppDecayRates
     Decayrate <- rep(0, 9)
@@ -254,25 +255,8 @@ exe <- function(stand,Y) {
     Decayrate[9] <- AppDecayRates[9]
     
     # Apply decay rates to CPools
-    CarbonPoolTransferMatrix <- matrix(c(
-    Decayrate[1] * 0.83, (1-Decayrate[1]-0.032), 0, 0.032, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
-    Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
-    Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
-    Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
-    Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
-    Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
-    Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
-    Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
-    Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]
-    ), nrow = 9, ncol = 10, byrow = TRUE)
-    colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
-    "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
-    rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
-    "BGveryfast", "BGfast", "BGslow")
-    
-    
     #CarbonPoolTransferMatrix <- matrix(c(
-    #Decayrate[1] * 0.83, (1-Decayrate[1]-0.08), 0, 0.08, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
+    #Decayrate[1] * 0.83, (1-Decayrate[1]-0.032), 0, 0.032, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
     #Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
     #Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
     #Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
@@ -285,7 +269,24 @@ exe <- function(stand,Y) {
     #colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
     #"AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
     #rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
-    # "BGveryfast", "BGfast", "BGslow")
+    #"BGveryfast", "BGfast", "BGslow")
+    
+    
+    CarbonPoolTransferMatrix <- matrix(c(
+    Decayrate[1] * 0.83, (1-Decayrate[1]-0.08), 0, 0.08, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
+    Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
+    Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
+    Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
+    Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
+    Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
+    Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
+    Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
+    Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]
+    ), nrow = 9, ncol = 10, byrow = TRUE)
+    colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
+    "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
+    rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
+     "BGveryfast", "BGfast", "BGslow")
     
     
     tmp <- as.vector(t(CPool)%*%CarbonPoolTransferMatrix)
@@ -535,8 +536,8 @@ exe <- function(stand,Y) {
 }
 
 
-n.iter <- 1000#plots to check
-Y <- 4800
+n.iter <- 1000 #plots to check
+Y <- 120
 MFRI_s <- matrix(0,n.iter,Y,byrow=T)
 #stand dynamics
 Ba_s <- matrix(0,n.iter,Y,byrow=T)
@@ -601,7 +602,6 @@ for (i in 1:n.iter){
   PreFireStand_s[[i]] <-CarbonModel$PreFireStand
   Transition_list[[i]]<-CarbonModel$Transition
   Heights_list[[i]]<-CarbonModel$Heights
-  GrowthIndex_list [[i]] <- CarbonModel$CCGrowthIndex
   CR_list[[i]] <- CarbonModel$CR
   TotalLiveBiomass_s[i,] <- CarbonModel$TotalLiveBiomass
   EmpiricalTemperature_s[i,] <-CarbonModel$EmpiricalTemperature
@@ -622,3 +622,45 @@ for (i in 1:n.iter){
   NF_s[i] <- CarbonModel$NF
   print(i)
 }
+
+Lat <- Latitude_s[,1]
+Lon <- Longitude_s[,1]
+NEP <- colMeans(NetEcosystemProduction_s) ##means over all replicates
+NPP <- colMeans(PrimaryProductivity_s)
+SoilResp <- colMeans(DOM_Flux_s)
+NBP <- colMeans( NetBiomeProduction_s)
+BiomassLiveCStock <- colMeans(TotalLiveBiomass_s)
+BasalArea <- colMeans(Ba_s)
+Snags <- sapply(DOM_Pool_list, function(m) m[1:120,1]) #
+SnagBranch <- sapply(DOM_Pool_list, function(m) m[1:120,2])
+AGMedium <- sapply(DOM_Pool_list, function(m) m[1:120,3])
+AGfast <- sapply(DOM_Pool_list, function(m) m[1:120,4])
+AGveryfast <- sapply(DOM_Pool_list, function(m) m[1:120,5])
+AGslow <- sapply(DOM_Pool_list, function(m) m[1:120,6])
+BGveryfast <- sapply(DOM_Pool_list, function(m) m[1:120,7])
+BGfast <- sapply(DOM_Pool_list, function(m) m[1:120,8])
+BGslow <- sapply(DOM_Pool_list, function(m) m[1:120,9])
+SoilCStock1 <- Snags+SnagBranch+AGMedium+AGfast+AGveryfast+AGslow+BGveryfast+BGfast+BGslow
+SoilCStock <- rowMeans(SoilCStock1)
+EcosystemCStock <- BiomassLiveCStock + SoilCStock
+
+MineralSoil <- BGveryfast+BGslow
+Organic <- AGveryfast+AGslow
+WoodyDebris <- Snags+SnagBranch+AGfast+AGMedium
+Org <- rowMeans(Organic)
+Min <- rowMeans(MineralSoil)
+WD <- rowMeans(WoodyDebris)
+sn <- rowMeans(Snags)
+sb <-rowMeans(SnagBranch)
+am <-rowMeans(AGMedium)
+af <- rowMeans(AGfast)
+avf <- rowMeans (AGveryfast)
+asl <- rowMeans(AGslow)
+bgvf <- rowMeans(BGveryfast)
+bgf <- rowMeans(BGfast)
+bgs <- rowMeans (BGslow)
+
+Path5onlyFRI <- cbind(NPP,NEP,NBP,SoilResp,BiomassLiveCStock,SoilCStock,EcosystemCStock,Min,Org,WD,
+               sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
+
+
