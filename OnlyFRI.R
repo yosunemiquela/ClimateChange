@@ -6,14 +6,14 @@ exe <- function(stand,Y) {
   #FRIs <- c(rep(916,30), rep(716,30), rep(458,30), rep(300,30)) ##Path1
   #FRIs <- c(rep(916,30), rep(304,30), rep(241,30), rep(170,30))  ##Path2
   #FRIs <- c(rep(783,30), rep(212,30), rep(250,30), rep(248,30))  ##Path3
-  #FRIs <- c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
-  FRIs <- c(rep(783,30), rep(1112,30), rep(735,30), rep(404,30))  ##Path5 
+  FRIs <- c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
+  #FRIs <- c(rep(783,30), rep(1112,30), rep(735,30), rep(404,30))  ##Path5 
   
   #Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21"), d=PoolPlots2) ##path 1
   #Sampled <- subpop (path=c("Pathway22","Pathway23","Pathway24"), d=PoolPlots2) ##path 2
   #Sampled <- subpop (path=c("Pathway11","Pathway14","Pathway15","Pathway16"), d=PoolPlots2) ##path 3
-  #Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
-  Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
+  Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
+  #Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
   Sampled <- Sampled[sample(1:dim(Sampled)[1], size=1, replace=T),]
   PlotID <- Sampled[1,2]
   WeatherPlot <- Sampled[1,1]
@@ -623,14 +623,18 @@ for (i in 1:n.iter){
   print(i)
 }
 
-Lat <- Latitude_s[,1]
-Lon <- Longitude_s[,1]
-NEP <- colMeans(NetEcosystemProduction_s) ##means over all replicates
-NPP <- colMeans(PrimaryProductivity_s)
-SoilResp <- colMeans(DOM_Flux_s)
-NBP <- colMeans( NetBiomeProduction_s)
-BiomassLiveCStock <- colMeans(TotalLiveBiomass_s)
-BasalArea <- colMeans(Ba_s)
+
+Year <- 1:120
+plots <- n.iter
+
+
+#Season 1 Spring #2 Summer
+BasalArea <- Ba_s[, Year]
+BiomassLiveCStock <- TotalLiveBiomass_s[1:plots, Year]
+NPP <- PrimaryProductivity_s[1:plots, Year]
+SoilRespiration <- Rh_s[1:plots, Year]
+NEP <- NetEcosystemProduction_s[1:plots, Year]
+NBP <-  NetBiomeProduction_s[1:plots, Year]
 Snags <- sapply(DOM_Pool_list, function(m) m[1:120,1]) #
 SnagBranch <- sapply(DOM_Pool_list, function(m) m[1:120,2])
 AGMedium <- sapply(DOM_Pool_list, function(m) m[1:120,3])
@@ -641,26 +645,27 @@ BGveryfast <- sapply(DOM_Pool_list, function(m) m[1:120,7])
 BGfast <- sapply(DOM_Pool_list, function(m) m[1:120,8])
 BGslow <- sapply(DOM_Pool_list, function(m) m[1:120,9])
 SoilCStock1 <- Snags+SnagBranch+AGMedium+AGfast+AGveryfast+AGslow+BGveryfast+BGfast+BGslow
-SoilCStock <- rowMeans(SoilCStock1)
+SoilCStock <- t(SoilCStock1)
 EcosystemCStock <- BiomassLiveCStock + SoilCStock
 
-MineralSoil <- BGveryfast+BGslow
-Organic <- AGveryfast+AGslow
-WoodyDebris <- Snags+SnagBranch+AGfast+AGMedium
-Org <- rowMeans(Organic)
-Min <- rowMeans(MineralSoil)
-WD <- rowMeans(WoodyDebris)
-sn <- rowMeans(Snags)
-sb <-rowMeans(SnagBranch)
-am <-rowMeans(AGMedium)
-af <- rowMeans(AGfast)
-avf <- rowMeans (AGveryfast)
-asl <- rowMeans(AGslow)
-bgvf <- rowMeans(BGveryfast)
-bgf <- rowMeans(BGfast)
-bgs <- rowMeans (BGslow)
+MineralSoil <- t(BGveryfast+BGslow)
+Organic <- t(AGveryfast+AGslow)
+WoodyDebris <- t(Snags+SnagBranch+AGfast+AGMedium)
+sn <- t(Snags)
+sb <- t(SnagBranch)
+am <-t(AGMedium)
+af <- t(AGfast)
+avf <- t(AGveryfast)
+asl <- t(AGslow)
+bgvf <- t(BGveryfast)
+bgf <- t(BGfast)
+bgs <- t(BGslow)
 
-Path5onlyFRI <- cbind(NPP,NEP,NBP,SoilResp,BiomassLiveCStock,SoilCStock,EcosystemCStock,Min,Org,WD,
+Path4onlyFRI <- list(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
                sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
 
-
+save("Path1onlyFRI", file = "Path1onlyFRI.RData")
+save("Path2onlyFRI", file = "Path2onlyFRI.RData")
+save("Path3onlyFRI", file = "Path3onlyFRI.RData")
+save("Path4onlyFRI", file = "Path4onlyFRI.RData")
+save("Path5onlyFRI", file = "Path5onlyFRI.RData")
