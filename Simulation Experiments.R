@@ -90,15 +90,17 @@ for (i in 1:n.iter){
   print(i)
 }
 
-
+Year <- 1:120
+plots <- n.iter
+BasalArea <- Ba_s[, Year]
+BiomassLiveCStock <- TotalLiveBiomass_s[1:plots, Year]
+NPP <- PrimaryProductivity_s[1:plots, Year]
+SoilRespiration <- Rh_s[1:plots, Year]
+NEP <- NetEcosystemProduction_s[1:plots, Year]
+NBP <-  NetBiomeProduction_s[1:plots, Year]
 Lat <- Latitude_s[,1]
 Lon <- Longitude_s[,1]
-NEP <- colMeans(NetEcosystemProduction_s) ##means over all replicates
-NPP <- colMeans(PrimaryProductivity_s)
-SoilResp <- colMeans(DOM_Flux_s)
-NBP <- colMeans( NetBiomeProduction_s)
-BiomassLiveCStock <- colMeans(TotalLiveBiomass_s)
-BasalArea <- colMeans(Ba_s)
+
 Snags <- sapply(DOM_Pool_list, function(m) m[1:120,1]) #
 SnagBranch <- sapply(DOM_Pool_list, function(m) m[1:120,2])
 AGMedium <- sapply(DOM_Pool_list, function(m) m[1:120,3])
@@ -109,32 +111,27 @@ BGveryfast <- sapply(DOM_Pool_list, function(m) m[1:120,7])
 BGfast <- sapply(DOM_Pool_list, function(m) m[1:120,8])
 BGslow <- sapply(DOM_Pool_list, function(m) m[1:120,9])
 SoilCStock1 <- Snags+SnagBranch+AGMedium+AGfast+AGveryfast+AGslow+BGveryfast+BGfast+BGslow
-SoilCStock <- rowMeans(SoilCStock1)
+SoilCStock <- t(SoilCStock1)
 EcosystemCStock <- BiomassLiveCStock + SoilCStock
 
-MineralSoil <- BGveryfast+BGslow
-Organic <- AGveryfast+AGslow
-WoodyDebris <- Snags+SnagBranch+AGfast+AGMedium
-Org <- rowMeans(Organic)
-Min <- rowMeans(MineralSoil)
-WD <- rowMeans(WoodyDebris)
-sn <- rowMeans(Snags)
-sb <-rowMeans(SnagBranch)
-am <-rowMeans(AGMedium)
-af <- rowMeans(AGfast)
-avf <- rowMeans (AGveryfast)
-asl <- rowMeans(AGslow)
-bgvf <- rowMeans(BGveryfast)
-bgf <- rowMeans(BGfast)
-bgs <- rowMeans (BGslow)
-
+MineralSoil <- t(BGveryfast+BGslow)
+Organic <- t(AGveryfast+AGslow)
+WoodyDebris <- t(Snags+SnagBranch+AGfast+AGMedium)
+sn <- t(Snags)
+sb <- t(SnagBranch)
+am <-t(AGMedium)
+af <- t(AGfast)
+avf <- t(AGveryfast)
+asl <- t(AGslow)
+bgvf <- t(BGveryfast)
+bgf <- t(BGfast)
+bgs <- t(BGslow)
 
 
 intensities <- rep(0, 120)
 for (i in 1:120){
   I <- InitialIntensity_s[,i]
   I2 <- mean(I[I!=0]) 
-  I2 <- ifesle()
   intensities[i] <- I2
   intensities <- replace(intensities,is.na(intensities),0)
 }
@@ -187,7 +184,7 @@ fireregime <- cbind(intensities,droughts,seve,emi)
 goann <- cbind(GIs,AnnTemp)
 ApDecRates <- cbind(SnagsDecorate,SnagsBranchDecorate,MediumDecRate,agfastDecRate,
                     agvfDecRate,bgvfDecRate,bgfDecRate,bgsDecRate)
-Path5 <- cbind(NPP,NEP,NBP,SoilResp,BiomassLiveCStock,SoilCStock,EcosystemCStock,Min,Org,WD,
+Path5 <- cbind(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
                sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
 
 Path5Coor <- cbind(Lat,Lon)
