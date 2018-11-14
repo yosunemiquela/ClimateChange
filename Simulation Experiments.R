@@ -184,7 +184,7 @@ fireregime <- cbind(intensities,droughts,seve,emi)
 goann <- cbind(GIs,AnnTemp)
 ApDecRates <- cbind(SnagsDecorate,SnagsBranchDecorate,MediumDecRate,agfastDecRate,
                     agvfDecRate,bgvfDecRate,bgfDecRate,bgsDecRate)
-Path5 <- cbind(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
+Path5<- list(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
                sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
 
 Path5Coor <- cbind(Lat,Lon)
