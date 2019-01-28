@@ -138,7 +138,6 @@ exe <- function(stand,Y,Weather){
   DroughtCode <- numeric(Y)
   EmpiricalTemperature <- numeric(Y)
   CCGrowthIndex <- numeric(Y)
-  FireSeason <- numeric(Y)
   BALost <- numeric(Y)
   Delta_BA <- numeric(Y)
   DeltaN <- matrix(0, Y, n, byrow = TRUE)
@@ -233,22 +232,7 @@ exe <- function(stand,Y,Weather){
     Decayrate[8] <- AppDecayRates[8]
     Decayrate[9] <- AppDecayRates[9]
     
-    # Apply decay rates to CPools
-    #CarbonPoolTransferMatrix <- matrix(c(
-      #Decayrate[1] * 0.83, (1-Decayrate[1]-0.032), 0, 0.032, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
-      #Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
-      #Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
-      #Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
-      #Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
-      #Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
-      # Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
-      #Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
-      #Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]
-      #), nrow = 9, ncol = 10, byrow = TRUE)
-    #colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
-                                            #                                        "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
-    #rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
-                                          #  "BGveryfast", "BGfast", "BGslow")
+    
     CarbonPoolTransferMatrix <- matrix(c(
       Decayrate[1] * 0.83, (1-Decayrate[1]-0.08), 0, 0.08, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
       Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
@@ -282,10 +266,8 @@ exe <- function(stand,Y,Weather){
     BAIncrement <- sum(growth* baq)    # patch BA increment due to growth
     CCRgrowth <- growth * CCR           # the trees that grow bring their crown ratio
     Heightgrowth <- growth * HeightUpdated
-    GrowthCBiomass<- sum(BioMassCarbon%*%as.matrix(stand)) ##calculate biomass due to growth..Biomass that has not been lost to turnover or mortality
-    
     # Calculate Biomass due to growth
-    GrowthCBiomass <- sum(BioMassCarbon %*% as.matrix(stand))  # calculate biomass due to growth
+    GrowthCBiomass<- sum(BioMassCarbon%*%as.matrix(stand)) ##calculate biomass due to growth..Biomass that has not been lost to turnover or mortality
     delta <- (GrowthCBiomass-ICB) # Biomass that has not been lost to turnover or mortality
     
     # Apply turnover

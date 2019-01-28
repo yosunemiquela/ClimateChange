@@ -24,6 +24,7 @@ library("quantmod")
 library("nlme")
 library("grid")
 
+
 KgMg<-(0.001)
 
 load("Path1.RData")
@@ -45,6 +46,88 @@ pathfunction <- function(x,i){
   return(Pathway)
 }
 
+
+pathfunction2 <- function(x,i){
+  Df <- x[[i]][,120]
+  Di <- x[[i]][,91]
+  Cf <- x[[i]][,90] 
+  Ci <- x[[i]][,61]
+  Bf <- x[[i]][,60] 
+  Bi<- x[[i]][,31]
+  Af<- x[[i]][,30] 
+  Ai<- x[[i]][,1] 
+  data <- as.data.frame(cbind(Ai,Af,Bi, Bf, Ci, Cf, Di, Df))
+  Pathway <- melt(data)
+  Pathway<-Pathway[,2]
+  return(Pathway)
+}
+
+PTWAY1_ <- matrix(0,8000,19,byrow=T)
+PTWAY2_ <- matrix(0,8000,19,byrow=T)
+PTWAY3_ <- matrix(0,8000,19,byrow=T)
+PTWAY4_ <- matrix(0,8000,19,byrow=T)
+PTWAY5_ <- matrix(0,8000,19,byrow=T)
+
+for (i in 1:19){
+  
+  
+  PTWAY1_[,i] <- pathfunction2(Path1,i)
+  PTWAY2_[,i] <- pathfunction2(Path2,i)
+  PTWAY3_[,i] <- pathfunction2(Path3,i)
+  PTWAY4_[,i] <- pathfunction2(Path4,i)
+  PTWAY5_[,i] <- pathfunction2(Path5,i)
+}
+
+PTWAY1a_ <- as.data.frame(PTWAY1_)
+PTWAY1a_$Year<-rep(c("Ai","Af","Bi","Bf","Ci","Cf","Di","Df"),each=1000)
+PTWAY1a_$Pathway<-rep("Path1", 1000)
+colnames(PTWAY1a_)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+
+PTWAY2a_ <- as.data.frame(PTWAY2_)
+PTWAY2a_$Year<-rep(c("Ai","Af","Bi","Bf","Ci","Cf","Di","Df"),each=1000)
+PTWAY2a_$Pathway<-rep("Path2", 1000)
+colnames(PTWAY2a_)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+
+PTWAY3a_ <- as.data.frame(PTWAY3_)
+PTWAY3a_$Year<-rep(c("Ai","Af","Bi","Bf","Ci","Cf","Di","Df"),each=1000)
+PTWAY3a_$Pathway<-rep("Path3", 1000)
+colnames(PTWAY3a_)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+PTWAY4a_ <- as.data.frame(PTWAY4_)
+PTWAY4a_$Year<-rep(c("Ai","Af","Bi","Bf","Ci","Cf","Di","Df"),each=1000)
+PTWAY4a_$Pathway<-rep("Path4", 1000)
+colnames(PTWAY4a_)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+PTWAY5a_ <- as.data.frame(PTWAY5_)
+PTWAY5a_$Year<-rep(c("Ai","Af","Bi","Bf","Ci","Cf","Di","Df"),each=1000)
+PTWAY5a_$Pathway<-rep("Path5", 1000)
+colnames(PTWAY5a_)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+
+
+All2<-rbind(PTWAY1a_,PTWAY2a_,PTWAY3a_,PTWAY4a_,PTWAY5a_)
+length(All2[,1])
+head(All2)
+KgMg<-(0.001)
+All2[,1:19] <- with(All2, All2[,1:19]*KgMg)
+
+
+
+
+########################
+########################
 PTWAY1 <- matrix(0,5000,19,byrow=T)
 PTWAY2 <- matrix(0,5000,19,byrow=T)
 PTWAY3 <- matrix(0,5000,19,byrow=T)
@@ -180,7 +263,8 @@ aov.fct <- function(x){
   return(list(period=period,path=path,inter=inter))
 }
 
-aov.fct(All$NPP)
+
+summary(aov(SoilRespiration~Period+Pathway+Period*Pathway,data=All))
 resanova <- lapply(as.list((All[,1:19])),aov.fct)
 
 
@@ -223,17 +307,17 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 }
 
 ##Fluxes
-npp <- summarySE(All, measurevar="NPP", groupvars=c("Pathway","Period "))
-nep <- summarySE(All, measurevar="NEP", groupvars=c("Pathway","Period"))
-nbp <- summarySE(All, measurevar="NBP", groupvars=c("Pathway","Period"))
-soilr <- summarySE(All, measurevar="SoilRespiration", groupvars=c("Pathway","Period"))
+npp <- summarySE(All2, measurevar="NPP", groupvars=c("Pathway","Period "))
+nep <- summarySE(All2, measurevar="NEP", groupvars=c("Pathway","Period"))
+nbp <- summarySE(All2, measurevar="NBP", groupvars=c("Pathway","Period"))
+soilr <- summarySE(All2, measurevar="SoilRespiration", groupvars=c("Pathway","Period"))
 ##Stocks
-ecs <- summarySE(All, measurevar="EcosystemCStock", groupvars=c("Pathway","Period"))
-soil<- summarySE(All, measurevar="SoilCStock", groupvars=c("Pathway","Period"))
-bcs <- summarySE(All, measurevar="BiomassLiveCStock", groupvars=c("Pathway","Period"))
-ol <- summarySE(All, measurevar="Organic", groupvars=c("Pathway","Period"))
-mscs <- summarySE(All, measurevar="MineralSoil", groupvars=c("Pathway","Period"))
-wd <- summarySE(All, measurevar="WoodyDebris", groupvars=c("Pathway","Period"))
+ecs <- summarySE(All2, measurevar="EcosystemCStock", groupvars=c("Pathway","Period"))
+soil<- summarySE(All2, measurevar="SoilCStock", groupvars=c("Pathway","Period"))
+bcs <- summarySE(All2, measurevar="BiomassLiveCStock", groupvars=c("Pathway","Period"))
+ol <- summarySE(All2, measurevar="Organic", groupvars=c("Pathway","Period"))
+mscs <- summarySE(All2, measurevar="MineralSoil", groupvars=c("Pathway","Period"))
+wd <- summarySE(All2, measurevar="WoodyDebris", groupvars=c("Pathway","Period"))
 snags <- summarySE(All, measurevar="sn", groupvars=c("Pathway","Period"))
 snabranch <- summarySE(All, measurevar="sb", groupvars=c("Pathway","Period"))
 abovemed <- summarySE(All, measurevar="am", groupvars=c("Pathway","Period"))
@@ -336,7 +420,7 @@ p8 <- ggplot(nbp, aes(x=Period, y=NBP, group=Pathway)) + ylim(-1.0,1.5) +
   geom_errorbar(aes(ymin=NBP-ci, ymax=NBP+ci), colour="black", width=.1)
 p8a <- p8+geom_point(aes(shape=factor(Pathway)), size=2) + geom_hline(yintercept = 0)
 p8ab <- p8a + scale_shape_manual(values = c(19,6,8,0,4))
-p8abc <- p8a+ theme_bw()
+p8abc <- p8ab+ theme_bw()
 p9 <- p8abc + theme(legend.position="none")+ annotation_custom(my_grobD)
 
 
@@ -424,19 +508,21 @@ P2 <- c(meanchangeeco2[[1]],meanchangeeco2[[2]],meanchangeeco2[[3]],meanchangeec
 P3 <- c(meanchangeeco3[[1]],meanchangeeco3[[2]],meanchangeeco3[[3]],meanchangeeco3[[4]])
 P4 <- c(meanchangeeco4[[1]],meanchangeeco4[[2]],meanchangeeco4[[3]],meanchangeeco4[[4]])
 P5 <- c(meanchangeeco5[[1]],meanchangeeco5[[2]],meanchangeeco5[[3]],meanchangeeco5[[4]])
-Initial <- rbind(P1[1],P2[1],P3[1],P4[1],P5[1])
-A <- rbind(P1[2],P2[2],P3[2],P4[2],P5[2])
-B <- rbind(P1[3],P2[3],P3[3],P4[3],P5[3])
-C <- rbind(P1[4],P2[4],P3[4],P4[4],P5[4])
+A <- rbind(P1[1],P2[1],P3[1],P4[1],P5[1])
+B<- rbind(P1[2],P2[2],P3[2],P4[2],P5[2])
+C <- rbind(P1[3],P2[3],P3[3],P4[3],P5[3])
+D <- rbind(P1[4],P2[4],P3[4],P4[4],P5[4])
 periodos <- rep(c("A","B","C","D"), each=5)
 periodos<- factor(periodos,
                      levels=c('A','B','C','D'), ordered=TRUE)
 pathways <- rep(c("Pathway1","Pathway2","Pathway3","Pathway4","Pathway5"))
-PercentC <- cbind(rbind(Initial,A,B,C),pathways)
+PercentC <- cbind(rbind(A,B,C,D),pathways)
 PercentC <- as.data.frame(PercentC)
 PercentC$Climatic <- periodos
 colnames(PercentC) <- c("Perchange","Pathway","Climatic")
 PercentC$Perchange <- as.numeric(as.character(PercentC$Perchange))
+#write.csv(PercentC,file="PercentCchange.csv")
+
 
 mr <- ggplot(PercentC, aes(x=Climatic, y=Perchange, group=Pathway))+ ylim(-11,8) +
 labs(x="Climatic Period",y="Mean % change in ecosystem C (MgC/ha)")+ geom_hline(yintercept = 0)
@@ -478,9 +564,10 @@ RateC$Rate <- as.numeric(as.character(RateC$Rate))
 
 mr2 <- ggplot(RateC, aes(x=Climatic, y=Rate, group=Pathway))+ ylim(-0.8,0.5) +
   labs(x="Climatic Period",y="Rate of change in ecosystem C (MgC/ha*yr)")+ geom_hline(yintercept = 0)
-mra2 <- mr2+geom_point(aes(shape=factor(Pathway)), size=3)
+mra2 <- mr2+geom_point(aes(shape=factor(Pathway)), size=3, show.legend = TRUE)
 mrab2 <- mra2+theme_bw()
-mrabc2 <- mrab2 + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+
+#mrabc2 <- mrab2 + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
 
 tiff('mrcec.tiff', units="in", width=7, height=7, res=300)
 mrabc2
@@ -517,463 +604,455 @@ for (i in 1:8){
 plot(decaymeans[,1] )
 
 ###
+##BioSimdata
+
+PreMayAu<- read.csv("HistPreMayAug.csv",header = TRUE, sep = ",")
+PreSep<- read.csv("HistoricalPrecSept.csv",header = TRUE, sep = ",")
+Tmax<- read.csv("HistoricalMAT.csv",header = TRUE, sep = ",")
+TFeb<- read.csv("HistTMaxFeb.csv",header = TRUE, sep = ",")
+TAug<- read.csv("HistTMinAug.csv",header = TRUE, sep = ",")
+TJuAu<- read.csv("HistTMinJuneAug.csv",header = TRUE, sep = ",")
+Historical <- cbind(Tmax,PreSep,PreMayAu,TFeb,TAug,TJuAu)
+str(Historical)
+Historical[c(4,5,7,8,10,11,13,14,16,17)] <- list(NULL)
+colnames(Historical) <- c("Latitude","Longitude","TMean","PreciSept","PreciMayAug","TMaxFeb","TMinAug","TMinJuAu")
+head(Historical)
+length(Historical[,1]) ##146460
+Historical$Year <- rep("Historical",length(Historical[,1]))
+#Historical$x <-rep(1:30,each=4882)
+#Historical$y<-rep(1:30, 4882)
+#Historical$Index<-paste(Historical$x,Historical$y, sep = "_")
+Historical$Concatanate <- paste(Historical$Latitude,Historical$Longitude, sep = "_")
+
+PreMayAuF<- read.csv("FirstPreMayAug.csv",header = TRUE, sep = ",")
+PreSepF <- read.csv("FirstPrecSept.csv",header = TRUE, sep = ",")
+TmaxF <- read.csv("FirstMAT.csv",header = TRUE, sep = ",")
+TFebF <- read.csv("FirstTMaxFeb.csv",header = TRUE, sep = ",")
+TAugF <- read.csv("FirstTMinAug.csv",header = TRUE, sep = ",")
+TJuAuF <- read.csv("FirstTMinJuneAug.csv",header = TRUE, sep = ",")
+First <- cbind(TmaxF,PreSepF,PreMayAuF,TFebF,TAugF,TJuAuF)
+First[c(4,5,7,8,10,11,13,14,16,17)] <- list(NULL)
+colnames(First) <- c("Latitude","Longitude","TMean","PreciSept","PreciMayAug","TMaxFeb","TMinAug","TMinJuAu")
+head(First)
+First$Year <- rep("First",length(First[,1]))
+First$x <-rep(1:30,each=4882)
+First$y<-rep(1:30, 4882)
+First$Index<-paste(First$x,First$y, sep = "_")
+First$Concatanate <- paste(First$Latitude,First$Longitude, sep = "_")
+
+PreMayAuS <- read.csv("SecondPreMayAug.csv",header = TRUE, sep = ",")
+PreSepS <- read.csv("SecondPrecSept.csv",header = TRUE, sep = ",")
+TmaxS <- read.csv("SecondMAT.csv",header = TRUE, sep = ",")
+TFebS <- read.csv("SecondTMaxFeb.csv",header = TRUE, sep = ",")
+TAugS <- read.csv("SecondTMinAug.csv",header = TRUE, sep = ",")
+TJuAuS <- read.csv("SecondTMinJuneAug.csv",header = TRUE, sep = ",")
+Second <- cbind(TmaxS,PreSepS,PreMayAuS,TFebS,TAugS,TJuAuS)
+Second[c(4,5,7,8,10,11,13,14,16,17)] <- list(NULL)
+colnames(Second) <- c("Latitude","Longitude","TMean","PreciSept","PreciMayAug","TMaxFeb","TMinAug","TMinJuAu")
+head(Second)
+Second$x <-rep(1:30,each=4882)
+Second$y<-rep(1:30, 4882)
+Second$Year <- rep("Second",length(Second[,1]))
+Second$Index<-paste(Second$x,Second$y, sep = "_")
+Second$Concatanate <- paste(Second$Latitude,Second$Longitude, sep = "_")
+
+
+PreMayAuT <- read.csv("ThirdPreMayAug.csv",header = TRUE, sep = ",")
+PreSepT <- read.csv("ThirdPrecSept.csv",header = TRUE, sep = ",")
+TmaxT <- read.csv("ThirdMAT.csv",header = TRUE, sep = ",")
+TFebT <- read.csv("ThirdTMaxFeb.csv",header = TRUE, sep = ",")
+TAugT <- read.csv("ThirdTMinAug.csv",header = TRUE, sep = ",")
+TJuAuT <- read.csv("ThirdTMinJuneAug.csv",header = TRUE, sep = ",")
+
+
+Third <- cbind(TmaxT,PreSepT,PreMayAuT,TFebT,TAugT,TJuAuT)
+Third[c(4,5,7,8,10,11,13,14,16,17)] <- list(NULL)
+colnames(Third) <- c("Latitude","Longitude","TMean","PreciSept","PreciMayAug","TMaxFeb","TMinAug","TMinJuAu")
+head(Third)
+Third$x <-rep(1:30,each=4882)
+Third$y<-rep(1:30, 4882)
+Third$Index<-paste(Third$x,Third$y, sep = "_")
+Third$Concatanate <- paste(Third$Latitude,Third$Longitude, sep = "_")
+Third$Year <- rep("Third",length(Third[,1]))
+
+Weather <- rbind(Historical,First,Second,Third)
+
+Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21","Pathway1",
+                          "Pathway22","Pathway23","Pathway24",
+                          "Pathway11","Pathway14","Pathway15","Pathway16",
+                          "Pathway26","Pathway28","Pathway1"), d=PoolPlots2) ##path 5
 
 
 
+Samples <- matrix(0, 120, 10, byrow = TRUE)
+listsamples <- rep(list(Samples),2495)
+
+for (i in 1:2495){
+  Samp <- Sampled[i,]
+  WeatherPlot <- Samp[1,1]
+  ClimateData <- GetClimate (Weather,WeatherPlot)
+  ClimateDataclean <- CorrectDupli(ClimateData) 
+  listsamples[[i]] <- ClimateDataclean
+}
+
+Tprojected <- matrix(0, 2495, 120, byrow = TRUE)
+for (i in 1:2495){
+  temperaturas <- as.vector(listsamples[[i]][[3]])
+  Tprojected[i,] <- temperaturas
+}
+time <- seq(1:120)
+meanstemp <- colMeans(Tprojected)
+         
+   mean(meanstemp[1:30])    
+   mean(meanstemp[31:60])  
+   mean(meanstemp[61:90])  
+   mean(meanstemp[91:120])  
+lines(Tprojected[2,],time)
+lines(Tprojected[3,],time)
+lines(Tprojected[4,],time)
+
+###
+##GrowthIndex
+
+gi1 <- as.data.frame(get(load("GrowthTemp1.RData")))
+gi2 <- as.data.frame(get(load("GrowthTemp2.RData")))
+gi3 <- as.data.frame(get(load("GrowthTemp3.RData")))
+gi4 <- as.data.frame(get(load("GrowthTemp4.RData")))
+gi5 <- as.data.frame(get(load("GrowthTemp5.RData")))
+
+years <- seq(1981,2100, by=1) 
+GrowthI<- as.data.frame(cbind(gi1[,1],gi2[,1],gi3[,1],gi4[,1],gi5[,1]))
+
+GrowthI$Time <- years
+plot(GrowthI$Time,GrowthI$V1, xlab="Time period (years)", ylab="Growth index (m)",pch=1, col="black",ylim=c(5,16))
+points(GrowthI$Time,GrowthI$V2, pch=1, col="black")
+points(GrowthI$Time,GrowthI$V3,pch=1, col="black")
+points(GrowthI$Time,GrowthI$V4,pch=1, col="black")
+points(GrowthI$Time,GrowthI$V5,pch=1, col="black")
+abline(v=c(2010,2040,2070), col=c("black","black","black"), lty=c(1,1,1), lwd=c(1, 1,1))
+text(1995,15.5,"A",cex=1.5, font=2)
+text(2025,15.5,"B",cex=1.5, font=2)
+text(2055,15.5,"C",cex=1.5, font=2)
+text(2085,15.5,"D",cex=1.5, font=2)
+
+growthihist<-colMeans(GrowthI[1:30,])
+mean(growthihist)
+growthifirst<-colMeans(GrowthI[31:60,])
+mean(growthifirst)
+growthisecond<-colMeans(GrowthI[61:90,])
+mean(growthisecond)
+growthithird<-colMeans(GrowthI[91:120,])
+mean(growthithird)
 
 
 
-
-#Temperature_8.5_2011_2040<- read.csv("C:\\Users\\yomiq\\Documents\\YOSDATA\\Laval\\ModelOutput2\\TemperatureFiles\\2011-2040_HadGEM2-ES-RCP-8.5-2011-2040_LONLAT_1_mod.csv",header=TRUE,colClasses = "character",sep = ",")
-#MeanAnnualTemperaturePrec8.5_2011_2040<-subset(Temperature_8.5_2011_2040, select=c("longitude", "latitude","temp?rature.moyenne.annuelle","Pr?cipitations.annuelles"))
-##MeanAnnualPrecipitation8.5_2011_2040<-subset(Temperature_8.5_2011_2040, select=c("longitude", "latitude","Pr?cipitations.annuelles"))
-#MeanAnnualTemperaturePrec8.5_2011_2040$TScenario<-"RCP8.5"
-#MeanAnnualTemperaturePrec8.5_2011_2040$temp?rature.moyenne.annuelle<-as.numeric (MeanAnnualTemperature8.5_2011_2040$temp?rature.moyenne.annuelle)
-#range(MeanAnnualTemperaturePrec8.5_2011_2040$temp?rature.moyenne.annuelle)
-#MeanAnnualTemperaturePrec8.5_2011_2040$Pr?cipitations.annuelles<-as.numeric(MeanAnnualPrecipitation8.5_2011_2040$Pr?cipitations.annuelles)
-#range(MeanAnnualTemperaturePrec8.5_2011_2040$Pr?cipitations.annuelles)
-#
-#Temperature_4.5_2011_2040<-read.csv("C:\\Users\\yomiq\\Documents\\YOSDATA\\Laval\\ModelOutput2\\TemperatureFiles\\2011-2040_HadGEM2-ES-RCP-4.5-2011-2040_LONLAT_1_mod.csv",header=TRUE,colClasses = "character",sep = ",")
-#MeanAnnualTemperaturePrec4.5_2011_2040<-subset(Temperature_4.5_2011_2040, select=c("longitude", "latitude","temp?rature.moyenne.annuelle","Pr?cipitations.annuelles"))
-#MeanAnnualTemperaturePrec4.5_2011_2040$TScenario<-"RCP4.5"
-#MeanAnnualTemperaturePrec4.5_2011_2040$temp?rature.moyenne.annuelle<-as.numeric (MeanAnnualTemperature4.5_2011_2040$temp?rature.moyenne.annuelle)
-#range(MeanAnnualTemperature4.5_2011_2040$temp?rature.moyenne.annuelle)
-##MeanAnnualPrecipitation4.5_2011_2040<-subset(Temperature_4.5_2011_2040, select=c("longitude", "latitude","Pr?cipitations.annuelles"))
-#MeanAnnualTemperaturePrec4.5_2011_2040$Pr?cipitations.annuelles<-as.numeric(MeanAnnualPrecipitation4.5_2011_2040$Pr?cipitations.annuelles)
-#range(MeanAnnualTemperaturePrec4.5_2011_2040$Pr?cipitations.annuelles)
-#
-#
-##################################
-#
-#Temperature_2.6_2011_2040<-read.csv("C:\\Users\\yomiq\\Documents\\YOSDATA\\Laval\\ModelOutput2\\TemperatureFiles\\2011-2040_HadGEM2-ES-RCP-2.6-2011-2040_LONLAT_1_mod.csv",header=TRUE,colClasses = "character",sep = ",")
-#MeanAnnualTemperaturePrec2.6_2011_2040<-subset(Temperature_2.6_2011_2040, select=c("longitude", "latitude","temp?rature.moyenne.annuelle","Pr?cipitations.annuelles"))
-#MeanAnnualTemperaturePrec2.6_2011_2040$TScenario<-"RCP2.6"
-#MeanAnnualTemperaturePrec2.6_2011_2040$temp?rature.moyenne.annuelle<-as.numeric (MeanAnnualTemperature2.6_2011_2040$temp?rature.moyenne.annuelle)
-#range(MeanAnnualTemperaturePrec2.6_2011_2040$temp?rature.moyenne.annuelle)
-##MeanAnnualPrecipitation2.6_2011_2040<-subset(Temperature_2.6_2011_2040, select=c("longitude", "latitude","Pr?cipitations.annuelles"))
-#MeanAnnualTemperaturePrec2.6_2011_2040$Pr?cipitations.annuelles<-as.numeric(MeanAnnualPrecipitation2.6_2011_2040$Pr?cipitations.annuelles)
-#range(MeanAnnualTemperaturePrec2.6_2011_2040$Pr?cipitations.annuelles)
-#
-#
-#
-###################################
-#Temperature_Historical<-read.csv("C:\\Users\\yomiq\\Documents\\YOSDATA\\Laval\\ModelOutput2\\TemperatureFiles\\1971-2000_mean_LONLAT.csv",header=TRUE,colClasses = "character",sep = ",")
-#MeanAnnualTemperatureHistorical<-subset(Temperature_Historical, select=c("longitude", "latitude","temp?rature.moyenne.annuelle","Pr?cipitations.annuelles"))
-#MeanAnnualTemperatureHistorical$TScenario<-"Historical"
-#Temperature_1981_2010<-read.csv("C:\\Users\\yomiq\\Documents\\YOSDATA\\Laval\\ModelOutput2\\TemperatureFiles\\1981-2010_mean_LONLAT_1_mod.csv",header=TRUE,colClasses = "character",sep = ",")
-#MeanAnnualTemperature2<-subset(Temperature_1981_2010, select=c("longitude", "latitude","temp?rature.moyenne.annuelle","Pr?cipitations.annuelles"))
-#Histor<-merge(MeanAnnualTemperatureHistorical,MeanAnnualTemperature2)
-#Histor$temp?rature.moyenne.annuelle<-as.numeric(Histor$temp?rature.moyenne.annuelle)
-#mean(Histor$temp?rature.moyenne.annuelle )
-#Histor$Pr?cipitations.annuelles<-as.numeric(Histor$Pr?cipitations.annuelles)
-#
-#
-##############################################################
-#Tem<-rbind(MeanAnnualTemperatureHistorical,MeanAnnualTemperaturePrec2.6_2011_2040,MeanAnnualTemperaturePrec4.5_2011_2040,MeanAnnualTemperaturePrec8.5_2011_2040)
-#length(1:dim(Tem)[1])
-#Tem$TScenario<-as.factor(Tem$TScenario)
-#Tem$temp?rature.moyenne.annuelle<-as.numeric(Tem$temp?rature.moyenne.annuelle)
-#Tem$Pr?cipitations.annuelles<-as.numeric(Tem$Pr?cipitations.annuelles)
-#
-#fit1<-lm(temp?rature.moyenne.annuelle~TScenario, data=Tem)
-#anova(fit1)
-#summary(fit1)
-#aov1<-aov(temp?rature.moyenne.annuelle~TScenario,data=Tem)
-#summary(aov1)
-#plot(aov1)
-#posthoc <- TukeyHSD(x=aov1, 'TScenario', conf.level=0.95)
-#plot(posthoc)
-#
-#
-#fit2<-lm(Pr?cipitations.annuelles~TScenario, data=Tem)
-#anova(fit2)
-#summary(fit2)
-#
-#par(mfrow = c(1, 2))
-#boxplot(temp?rature.moyenne.annuelle~TScenario, data=Tem, xlab="Climatic scenario", ylab="Mean annual temperature (?C)")
-#boxplot(Pr?cipitations.annuelles~TScenario, data=Tem, xlab="Climatic scenario", ylab="Mean annual precipitation (mm)")
-#
-#m<-tapply(Tem$temp?rature.moyenne.annuelle,Tem$TScenario,mean)
-#p<-tapply(Tem$Pr?cipitations.annuelles,Tem$TScenario,mean)
-#
-#result <- cbind(TemperatureMaxFebruary2011_2040, TemperatureMinAugust2011_2040)
-#TemperatureMinJuneAugust2011_2040,SumPrecipSeptember2011_2040,SumPrecipMayAugust2011_2040,
-#head(result)
-#length(1:dim(Climatic2041_2070)[1])
-#FebTMax<-as.vector(tapply(Climatic2041_2070$TMaxFeb...C.,Climatic2041_2070$Year,mean))
-#AugusTMin<-as.vector(tapply(Climatic2041_2070$TAugustMin...C.,Climatic2041_2070$Year,mean))
-#JuneAugusTMin<-as.vector(tapply(Climatic2041_2070$TMinJuneAugust...C.,Climatic2041_2070$Year,mean))
-#PrecipSept<-as.vector(tapply(Climatic2041_2070$TotalPrecipitationSeptember..mm.,Climatic2041_2070$Year,mean))
-#PreciMayAugus<-as.vector(tapply(Climatic2041_2070$TotalPrecipitationMayAugust..mm.,Climatic2041_2070$Year,mean))
-#
-
-
-#Climatic2041_2070<-read.csv("C:\\Users\\yomiq\\Documents\\YOSDATA\\Laval\\ModelOutput3\\ClimateData2041_2070RCP8.5.csv",header=TRUE,colClasses = "character",sep = ",")
-#Climatic2041_2070[,3:7] <- sapply(Climatic2041_2070[,3:7],as.numeric)
-#str(Climatic2041_2070)
-#length(1:dim(Climatic2041_2070)[1])
-#Years<-rep(c(2041:2070),30)
-#Climatic2041_2070$Year<-Years
-#names(Climatic2041_2070)
-#FebTMax<-as.vector(tapply(Climatic2041_2070$TMaxFeb...C.,Climatic2041_2070$Year,mean))
-#AugusTMin<-as.vector(tapply(Climatic2041_2070$TAugustMin...C.,Climatic2041_2070$Year,mean))
-#JuneAugusTMin<-as.vector(tapply(Climatic2041_2070$TMinJuneAugust...C.,Climatic2041_2070$Year,mean))
-#PrecipSept<-as.vector(tapply(Climatic2041_2070$TotalPrecipitationSeptember..mm.,Climatic2041_2070$Year,mean))
-#PreciMayAugus<-as.vector(tapply(Climatic2041_2070$TotalPrecipitationMayAugust..mm.,Climatic2041_2070$Year,mean))
-#
-#
-###########################
-###BioSIM weather data
-
-
-
-
-Weather<-ClimateHistorical
-
-
-
-
-
-
-
-
-
-#ExportID<- subset(Plots [,1:3])
-#length(ExportID[,1])##4882
-#ExportID$Concatanate<-paste(ExportID$LATITUDE,ExportID$LONGITUDE, sep = "_")
-#ExportID$LATITUDE <- as.numeric(ExportID$LATITUDE)
-#ExportID$LONGITUDE <- as.numeric(ExportID$LONGITUDE)
-#
-#
-#write.csv(ExportID, file="D:\\ModelOutput3\\ExportID.csv")
-#str(ExportID)
-
-
-
-
-
-
-
-
-
-
-Climate2011_2040<-cbind(MeanTemperature2011_2040,TemperatureMaxFebruary2011_2040,TemperatureMinAugust2011_2040,TemperatureMinJuneAugust2011_2040,SumPrecipSeptember2011_2040,SumPrecipMayAugust2011_2040)
-str( Climate2011_2040)
-Climate2011_2040[c(5,6,7,8,10,11,12,13,15,16,17,18,20,21,22,23,25,26,27,28,30)] <- list(NULL)
-Years<-rep(c(2011:2040),30)
-Climate2011_2040$Year<-Years
-names(Climate2011_2040)
-colnames(Climate2011_2040) <- c("Latitude","Longitude","Year","TMean", "TMaxFeb","TMinAug","TMinJuAu","PreciSept", "PreciMaySep")
-head(Climate2011_2040)
-Climate2011_2040$Concatanate<-paste(Climate2011_2040$Latitude,Climate2011_2040$Longitude,sep = "_")
-
-
-ExportID <- subset(Plots [,1:3])
-length(ExportID[,1])##4882
-ExportID$Concatanate <- paste(ExportID$LATITUDE,ExportID$LONGITUDE, sep = "_")
-ExportID$LATITUDE <- as.numeric(ExportID$LATITUDE)
-ExportID$LONGITUDE <- as.numeric(ExportID$LONGITUDE)
-ed <- ExportID[order(ExportID$ID_PEP_MES, ExportID$Concatanate, decreasing=TRUE),]
-ed <- ed[!duplicated(ExportID$Concatanate),]
-length(ed[,1])##3330
-#ed$Status <- ifelse(duplicated(ed$Concatanate)=="FALSE",0,1)
-write.csv(ed, file="D:\\ModelOutput3\\ExportID.csv")
-str(ed)
-
-ClimatePlots<- read.table("C:\\Users\\yomiq\\Documents\\YOSDATA\\LAVAL\\ModelOutput3\\InventoryPlotsCC.txt",colClasses = "character", header=TRUE,
-                          sep = ",", quote="\"") ##contains info regarding historical and projected MFRI for rach plot
-length(ClimatePlots[,1])
-
-PoolPlots<-cbind(Plots,ClimatePlots)
-length(PoolPlots[,1])#4882
+PoolPlots <- read.csv("InventoryPlotsPathway.csv",colClasses = "character", header=TRUE,sep = ",")
 str(PoolPlots)
-PoolPlots[c(4,5,6,8,9,10,11,12,13,14,15,16,18,20,21,22,23,24,25,26,27,28,30,32,34)] <- list(NULL)
-PoolPlots <- PoolPlots[which(PoolPlots$stands== "EnEn"),]
-length(PoolPlots[,1])#3714
-#PoolPlots$Pathway<-ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="1112"&PoolPlots$MFRI2=="735"&PoolPlots$MFRI3=="404","Pathway1",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="1112"&PoolPlots$MFRI2=="735"&PoolPlots$MFRI3=="835","Pathway2",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="1112"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="835","Pathway3",
-##ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="1112"&PoolPlots$MFRI2=="735"&PoolPlots$MFRI3=="835","Others",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="300","Pathway4",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="135","Pathway5",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="241"&PoolPlots$MFRI3=="135","Pathway6",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="1251"&PoolPlots$MFRI3=="300","Pathway7",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="1251"&PoolPlots$MFRI3=="835","Pathway8",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="831"&PoolPlots$MFRI2=="735"&PoolPlots$MFRI3=="404","Pathway9",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="831"&PoolPlots$MFRI2=="428"&PoolPlots$MFRI3=="145","Pathway10",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="304"&PoolPlots$MFRI2=="241"&PoolPlots$MFRI3=="146","Pathway11",
-#ifelse (PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="581"&PoolPlots$MFRI2=="735"&PoolPlots$MFRI3=="404","Pathway12",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="581"&PoolPlots$MFRI2=="735"&PoolPlots$MFRI3=="145","Pathway13",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="182"&PoolPlots$MFRI2=="151"&PoolPlots$MFRI3=="300","Pathway14",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="182"&PoolPlots$MFRI2=="151"&PoolPlots$MFRI3=="145","Pathway15",
-#ifelse(PoolPlots$Historic_1=="783"&PoolPlots$MFRI1=="182"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="404","Pathway16",
-#ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="300","Pathway17",
-#ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="835","Pathway18",
-#ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="390","Pathway19",
-#ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="229","Pathway20",
-#ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="241"&PoolPlots$MFRI3=="300","Pathway21",
-#ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="304"&PoolPlots$MFRI2=="241"&PoolPlots$MFRI3=="146","Pathway22",
-#ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="304"&PoolPlots$MFRI2=="241"&PoolPlots$MFRI3=="135","Pathway23",
-#ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="304"&PoolPlots$MFRI2=="241"&PoolPlots$MFRI3=="229","Pathway24",
-##ifelse(PoolPlots$Historic_1=="916"&PoolPlots$MFRI1=="304"&PoolPlots$MFRI2=="241"&PoolPlots$MFRI3=="146","Pathway25",
-#ifelse(PoolPlots$Historic_1=="152"&PoolPlots$MFRI1=="182"&PoolPlots$MFRI2=="428"&PoolPlots$MFRI3=="145","Pathway25",
-#ifelse(PoolPlots$Historic_1=="152"&PoolPlots$MFRI1=="182"&PoolPlots$MFRI2=="428"&PoolPlots$MFRI3=="404","Pathway26",
-#ifelse(PoolPlots$Historic_1=="152"&PoolPlots$MFRI1=="182"&PoolPlots$MFRI2=="151"&PoolPlots$MFRI3=="145","Pathway27",
-#ifelse(PoolPlots$Historic_1=="2865"&PoolPlots$MFRI1=="1112"&PoolPlots$MFRI2=="1251"&PoolPlots$MFRI3=="835","Pathway28",
-#ifelse(PoolPlots$Historic_1=="3589"&PoolPlots$MFRI1=="938"&PoolPlots$MFRI2=="313"&PoolPlots$MFRI3=="229","Pathway29",
-#ifelse(PoolPlots$Historic_1=="3589"&PoolPlots$MFRI1=="776"&PoolPlots$MFRI2=="458"&PoolPlots$MFRI3=="229","Pathway30",
-#ifelse(PoolPlots$Historic_1=="3589"&PoolPlots$MFRI1=="304"&PoolPlots$MFRI2=="313"&PoolPlots$MFRI3=="229","Pathway31",
-#"Others")))))))))))))))))))))))))))))))
-#
-#
-#Grouping <- subset (PoolPlots [c(100,3713,3714,3592,750,2548,406,2550,3256,3253,2362,84,77,3679,2328,1,2251,419,2221,2228,2375,2266,2096,2260,19,31,74,2189,2240,2236,2241),7:11])
-#str(Grouping)
-#H<-as.numeric(Grouping[,1])
-#m1<-as.numeric(Grouping[,2])
-#m2 <- as.numeric(Grouping[,3])
-#m3 <- as.numeric(Grouping[,4])
-#Trend <- data.frame(Pathway= rep(1:31,4),MFRI=c(H,m1,m2,m3),Period= c(rep("1",31),rep("2",31),rep("3",31),rep("4",31)))
-#Trend$Pathway<-as.numeric(Trend$Pathway)
-#Trend$Period<-as.numeric(Trend$Period)
-#str(Trend)
-#
-## convert factor to numeric for convenience
-#npaths <- max(Trend$Pathway)
-## get the range for the x and y axis
-#xrange <- range(Trend$Period)
-#yrange <- range(Trend$MFRI)
-#
-## set up the plot
-#plot(xrange, yrange, type="n", xlab="Period",
-#  	ylab="MFRI (years)" )
-#colors <- rainbow(npaths)
-#linetype <- c(1:npaths)
-#
-#
-## add lines
-#for (i in 1:npaths) {
-#  paths <- subset(Trend, Pathway==i)
-# lines(paths$Period, paths$MFRI, type="b", lwd=1.5,
-#    lty=linetype[i], col=colors[i])
-#}
-#
-## add a legend
-#legend(xrange[1], yrange[2], 1:npaths, cex=0.8, col=colors,
-#  	 lty=linetype, title="Change in MFRI")
-#
-#
-#
-#plot(MFRI~Period , data=Trend)
-#
-# dev.off()
-#
-#plot(yos[2,])
-#c(Grouping[,1],Grouping[,2])
-##Grouping <- cbind(PoolPlots[,7:11], PoolPlots[c(100,3713,3714,3592,750,2548,406,2550,3256,3253,2362,84,77,3679,2328,1,2251,419,2221,2228,2375,2266,2096,2260,19,31,74,2189,2240,2236,2241),])
-#G<-t(Grouping)
-#as.data.frame(G)
-#plot(Gr[1])
-#x.sub8 <- x.df[c(1, 3), 1:3]
-#yos[2,]
-#
+PoolPlots[,24:34] <- sapply(PoolPlots[,24:34],as.numeric)
+length(PoolPlots[,1])  ##4882...3714
+PoolPlots2<-PoolPlots[which(PoolPlots$stands== "EnEn"),]
+length(1:dim(PoolPlots2)[1])##3714
+
+
+str(PoolPlots2)
+plots <- PoolPlots2[,c(3,4,30,32,34,36,38)] 
+plots$FRI_Pathway <- ifelse(plots$Pathway=="Pathway17"| plots$Pathway=="Pathway19"| 
+                              plots$Pathway=="Pathway20"| plots$Pathway=="Pathway21","Pathway1",
+                            ifelse(plots$Pathway=="Pathway22"| plots$Pathway=="Pathway23"| 
+                                     plots$Pathway=="Pathway24","Pathway2",
+                                   ifelse(plots$Pathway=="Pathway11"| plots$Pathway=="Pathway14"| plots$Pathway=="Pathway15"
+                                          | plots$Pathway=="Pathway16","Pathway3",ifelse(plots$Pathway=="Pathway26"
+                                                                                         | plots$Pathway=="Pathway28","Pathway4",ifelse(plots$Pathway=="Pathway1","Pathway5","Other")))))                                      
+
+plots2 <- plots[which(plots$FRI_Pathway=="Pathway1"|plots$FRI_Pathway=="Pathway2"|plots$FRI_Pathway=="Pathway3"|plots$FRI_Pathway=="Pathway4"|plots$FRI_Pathway=="Pathway5"),]
+length(plots2[,1])###2495 plots
+
+p_c <- read.csv("PercentChange.csv", header=TRUE,sep = ",")
+colnames(p_c) <- c("Index","Percchange","FRI_Pathway","Climatic_Period")
+str(p_c)
+
+
+merging <- merge(p_c, plots2, by = "FRI_Pathway")
+write.csv(merging,file="PercentCchange_spatial.csv")
+
+###supplementary material
+my_grobA = grobTree(textGrob("A)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+my_grobB = grobTree(textGrob("B)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+my_grobC = grobTree(textGrob("C)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+my_grobD = grobTree(textGrob("D)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+my_grobE = grobTree(textGrob("E)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+my_grobF = grobTree(textGrob("F)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+my_grobG = grobTree(textGrob("G)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+my_grobH = grobTree(textGrob("H)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+my_grobI = grobTree(textGrob("I)", x=0.01,  y=0.95, hjust=0,
+                             gp=gpar(col="black", fontsize=12, fontface="bold")))
+
+snags <- summarySE(All, measurevar="sn", groupvars=c("Pathway","Period"))
+snabranch <- summarySE(All, measurevar="sb", groupvars=c("Pathway","Period"))
+abovemed <- summarySE(All, measurevar="am", groupvars=c("Pathway","Period"))
+abovefa <- summarySE(All, measurevar="af", groupvars=c("Pathway","Period"))
+abovefa <- summarySE(All, measurevar="af", groupvars=c("Pathway","Period"))
+abovevf <- summarySE(All, measurevar="avf", groupvars=c("Pathway","Period"))
+abovesl<- summarySE(All, measurevar="asl", groupvars=c("Pathway","Period"))
+belowveryfa <- summarySE(All, measurevar="bgvf", groupvars=c("Pathway","Period"))
+belowfas <- summarySE(All, measurevar="bgf", groupvars=c("Pathway","Period"))
+beloslo <- summarySE(All, measurevar="bgs", groupvars=c("Pathway","Period"))
+
+
+p9a <- ggplot(snags, aes(x=Period, y=sn, group=Pathway)) + ylim(3,7) +
+  labs(x="Climatic Period",y="Snags (MgC/ha)")+
+  geom_errorbar(aes(ymin=sn-ci, ymax=sn+ci), colour="black", width=.1)
+p9ab <- p9a+geom_point(aes(shape=factor(Pathway)), size=2)
+p9abc <- p9ab+theme_bw()
+p10 <- p9abc + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p10a <- p10+annotation_custom(my_grobA)
+
+
+p10ab <- ggplot(snabranch, aes(x=Period, y=sb , group=Pathway)) + ylim(1,2) +
+  labs(x="Climatic Period",y="SnagBranch (MgC/ha)")+
+  geom_errorbar(aes(ymin=sb-ci, ymax=sb +ci), colour="black", width=.1)
+p10abc <- p10ab + geom_point(aes(shape=factor(Pathway)), size=2)
+p11 <- p10abc+theme_bw()
+p11a <- p11 + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p11ab <- p11a + annotation_custom(my_grobB)
+
+
+
+p<-ggplot(abovemed, aes(x=Period, y=am, group=Pathway)) + ylim(15,30) +
+  labs(x="Climatic Period",y="AG Medium (MgC/ha)")+
+  geom_errorbar(aes(ymin=am-ci, ymax=am+ci), colour="black", width=.1)
+p1<-p+geom_point(aes(shape=factor(Pathway)), size=2)
+p2<-p1+theme_bw()
+p7a<-p2+theme( legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p9<-p7a+annotation_custom(my_grobC)
+
+
+p<-ggplot(abovefa, aes(x=Period, y=af, group=Pathway)) + ylim(3,12) +
+  labs(x="Climatic Period",y="AG fast (MgC/ha)")+
+  geom_errorbar(aes(ymin=af-ci, ymax=af+ci), colour="black", width=.1)
+p1<-p+geom_point(aes(shape=factor(Pathway)), size=2)
+p2<-p1+theme_bw()
+p7a<-p2+theme( legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p10<-p7a+annotation_custom(my_grobD)
+
+
+
+p<-ggplot(abovevf, aes(x=Period, y=avf, group=Pathway)) + ylim(2,14) +
+  labs(x="Climatic Period",y="AG very fast (MgC/ha)")+
+  geom_errorbar(aes(ymin=avf-ci, ymax=avf+ci), colour="black", width=.1)
+p1<-p+geom_point(aes(shape=factor(Pathway)), size=2)
+p2<-p1+theme_bw()
+p7a<-p2+theme( legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p11<-p7a+annotation_custom(my_grobE)
+
+
+
+p<-ggplot(abovesl, aes(x=Period, y=asl, group=Pathway)) + ylim(29,40) +
+  labs(x="Climatic Period",y="AG slow (MgC/ha)")+
+  geom_errorbar(aes(ymin=asl-ci, ymax=asl+ci), colour="black", width=.1)
+p1<-p+geom_point(aes(shape=factor(Pathway)), size=2)
+p2<-p1+theme_bw()
+p7a<-p2+theme( legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p12<-p7a+annotation_custom(my_grobF)
+
+
+
+p<-ggplot(belowveryfa, aes(x=Period, y=bgvf,group=Pathway)) + ylim(0,2.5) +
+  labs(x="Climatic Period",y="BG very fast (MgC/ha)")+
+  geom_errorbar(aes(ymin=bgvf-ci, ymax=bgvf+ci), colour="black", width=.1)
+p1<-p+geom_point(aes(shape=factor(Pathway)), size=2)
+p2<-p1+theme_bw()
+p7a<-p2+theme( legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p13<-p7a+annotation_custom(my_grobG)
+
+
+
+p<-ggplot(belowfas, aes(x=Period, y=bgf, group=Pathway)) + ylim(1,5.5) +
+  labs(x="Climatic Period",y="BG fast (MgC/ha)")+
+  geom_errorbar(aes(ymin=bgf-ci, ymax=bgf+ci), colour="black", width=.1)
+p1<-p+geom_point(aes(shape=factor(Pathway)), size=2)
+p2<-p1+theme_bw()
+p7a<-p2+theme( legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p14<-p7a+annotation_custom(my_grobH)
 
 
 
 
+p<-ggplot(beloslo, aes(x=Period, y=bgs,group=Pathway)) + ylim(90,105) +
+  labs(x="Climatic Period",y="BG slow (MgC/ha)")+
+  geom_errorbar(aes(ymin=bgs-ci, ymax=bgs+ci), colour="black", width=.1)
+p1<-p+geom_point(aes(shape=factor(Pathway)), size=2)
+p2<-p1+theme_bw()
+p7a<-p2+theme( legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p15<-p7a+annotation_custom(my_grobI)
 
 
-dbhl<-c(1,3,5,7,9,11,13,15,17,19,21,23,25,27,29) ###dbh lower limit
-dbhu<- c(3,5,7,9,11,13,15,17,19,21,23,25,27,29,31) ##dbh upper limit
-dbhq<-sqrt((dbhu^3-dbhl^3)/((dbhu-dbhl)*3)) #assuming a uniform dbh distribution over interval
-baq<-(dbhq/2)^2*pi/1e4
-bal <- (dbhl/2)^2*pi/1e4
-bau <- (dbhu/2)^2* pi/1e4
+nnn<-multiplot(p10a,p10,p13,p11ab,p11,p14,p9,p12,p15,cols=3)
+
+tiff('figureS5.tiff', units="in", width=9, height=9, res=300)
+nnn<-multiplot(p10a,p10,p13,p11ab,p11,p14,p9,p12,p15,cols=3)
+dev.off()
 
 
-cali<-function(stand,Y,Recr){
-  
-  ###############################################################
-  ###############################################################
-  #Sampled_ca <- Region_ca (reg=c("A2","D4","B3","C3"), Calibration)
-  #Sampled_ca <- Sampled_ca[sample(1:dim(Sampled_ca)[1], size=1, replace=F),]
-  Sampled_ca <- PoolPlots[sample(1:dim(PoolPlots)[1], size=1, replace=F),]
-  PlotID<-Sampled_ca[1,2]
-  Tree.List_ca <- GetTrees_ca (Tree,Plots=Sampled_ca)
-  as.numeric(Tree.List_ca$DBH)
-  as.character(Tree.List_ca$ESSENCE)
-  #######saplings only EnEn
-  newTree.List_ca<-Tree.List_ca
-  #newTree.List_ca<-subset(Tree.List_ca, DBH==2& ESSENCE== "EPN"|(Tree.List_ca$DBH>=4), select=c("ID_PEP_MES","ESSENCE","DBH"))
-  length(1:dim(newTree.List_ca)[1])
-  ####################
-  newTree.List_ca<-as.data.frame(lapply(newTree.List_ca[,],function(x)rep(x,25)))
-  range.DBH<-c(seq(1,30, by=2), 100)
-  #Resume the results by class
-  newTree.List_ca$DBH<-as.numeric(newTree.List_ca$DBH)
-  stand<-table(cut(newTree.List_ca$DBH, breaks=range.DBH, labels=seq(1,15)))
-  stand[1:4]<-stand[1:4]*10
-  ###Partition the basal area of big trees >31 cm and add number of trees that the surplus of basal area represents
-  
-  basal_big_class<-0.0707905544
-  BAB<- rep(0,100)
-  TBA<- 3.142*(newTree.List_ca[newTree.List_ca[,3]>31,3]/200)^2
-  BAB<-round(TBA/basal_big_class,digits=0)
-  y<-sum(BAB)
-  stand[15]<-stand[15]+y
-  stand<-stand
-  dbhl<-c(1,3,5,7,9,11,13,15,17,19,21,23,25,27,29)
-  dbhu<- c(3,5,7,9,11,13,15,17,19,21,23,25,27,29,31)
-  bal<-(dbhl/2)^2*pi/1e4
-  bau<-(dbhu/2)^2*pi/1e4
-  xu<-((dbhu/2)^4 - (dbhl/2)^4)/4
-  xl<-((dbhu/2)^3 - (dbhl/2)^3)/3
-  dbhq<-numeric(length(dbhu))
-  dbhq<-(xu/xl)*2
-  baq<-(dbhq/2)^2*pi/1e4
-  
-  ######Initialize variables###
-  n<-length(stand)
-  N1s<-rep(1,n)
-  N0s<-rep(0,n)
-  deaths<-numeric(n)
-  growth<-numeric(n)
-  BA<-numeric(Y)
-  Recruits<-numeric(Y)
-  Parcela<-matrix(0,Y,n,byrow=TRUE)
-  Mortality<-matrix(0,Y,n,byrow=TRUE)
-  Muertos<-matrix(0,Y,n,byrow=TRUE)
-  Crecimiento<-matrix(0,Y,n,byrow=TRUE)
-  Growth<-matrix(0,Y,n,byrow=TRUE)
-  Transition<-matrix(0,Y,n,byrow=TRUE)
-  DeltaN<-matrix(0,Y,n,byrow=TRUE)
-  DeltaNT<-matrix(0,Y,n,byrow=TRUE)
-  CR<-matrix(0,Y,n,byrow=TRUE)
-  PCR<-numeric(n)
-  PCR0<-numeric(n)
-  CCR<-numeric(n)
-  ShiftCR<-numeric(n)
-  Size<-matrix(0,Y,n,byrow=TRUE)
-  iw<-dbhu-dbhl ###class width
-  MeanDBH1<-dbhq[1]
-  m2Ha<-1e4
-  shannon<-diversity(stand[5:15], index="shannon", MARGIN=1, base=exp(1))
-  #Germinants_natural<-ifelse(shannon>=2.0,RegenIrregular,RegenRegular)
-  Germinants_natural<-Recr
-  SaplingSurvival<-0.98
-  PCR<-crownratio(dbhq,sum(baq*stand))
-  PCR1<-crownratio(dbhq[1],sum(baq*stand))
-  PCR0<-PCR
-  CCR<-PCR
+
+###Only Fire
+p1 <- get(load("Path1onlyFRI.RData"))
+p2 <- get(load("Path2onlyFRI.RData"))
+p3 <- get(load("Path3onlyFRI.RData"))
+p4 <- get(load("Path4onlyFRI.RData"))
+p5 <- get(load("Path5onlyFRI.RData"))
+
+p1 <- Path1onlyFRI
+p2 <- Path2onlyFRI
+p3 <- Path3onlyFRI
+p4 <- Path4onlyFRI
+p5 <- Path5onlyFRI
+
+PTWAY1F <- matrix(0,5000,19,byrow=T) ##only fire
+PTWAY2F <- matrix(0,5000,19,byrow=T)
+PTWAY3F <- matrix(0,5000,19,byrow=T)
+PTWAY4F <- matrix(0,5000,19,byrow=T)
+PTWAY5F <- matrix(0,5000,19,byrow=T)
+
+for (i in 1:19){
   
   
-  for (y in 1:Y){
-    bay<-sum(stand*baq)
-    parcela<-stand
-    #GI <- GrowthIndex[y]
-    
-    Germinants_natural<-Recr
-    stand[1] <- stand[1] + Germinants_natural
-    Recruits[y]<-Germinants_natural
-    CCRRecruits<-Recruits[y]*PCR[1]
-    
-    
-    
-    annual_diam_incre <- DiameterGrowthRate(stand,dbhq,baq,14)
-    adi<-annual_diam_incre
-    graduating<- 1/(iw/adi)
-    growth<- rbinom(N1s, stand, graduating) #growth is the number of trees that graduate from age class n to n+1 (note that no tree can grow out of the biggest size class)
-    stand<-stand-growth
-    stand<-stand+c(0,growth[1:n-1])
-    BAIncrement<-sum(growth*baq) ##patch BA increment
-    CCRgrowth<-growth*CCR
-    
-    surviving<-mortality(stand,dbhq,baq)
-    surviving[1:4]<-SaplingSurvival
-    deaths<-rbinom(N1s,stand,1-surviving)
-    stand<-stand-deaths
-    DeltaBA<- BAIncrement-sum(deaths*baq)
-    DeltaN[y,]<-deaths+growth
-    
-    
-    DeltaNT[y,]<-deaths+growth+Germinants_natural
-    
-    
-    xH <- Top+adi ##Heightgrowth
-    dH <- xH-Top  ##deltaheight
-    MaximumCR <- (CCR*Top+dH)/xH
-    TotalN <- stand+c(0,growth[1:n-1])
-    TotalN[1]<-TotalN[1]+Recruits[y]
-    CCR <- updateCR(PCR,CCR,dbhq,Top,adi,bay,DeltaBA,stand)##CCR after recruitment,growth,mortality
-    CCRnow <- stand*CCR
-    ShiftCR <- CCRnow+c(0,CCRgrowth[1:n-1])
-    ShiftCR[1] <- ShiftCR[1]+CCRRecruits
-    CCR <- ifelse(stand>0,pmin(MaximumCR,ShiftCR/TotalN),PCR)
-    
-    Parcela[y,]<-parcela
-    Mortality[y,]<-1-surviving
-    Crecimiento[y,]<-growth
-    Muertos[y,]<-deaths
-    BA[y]<-bay
-    Growth[y,]<-adi
-    Transition[y,]<-graduating
-    Size[y,]<-stand
-    CR[y,]<-CCR
-  }
-  
-  res<-list(stand=stand,Size=Size,Parcela=Parcela,Muertos=Muertos,Crecimiento=Crecimiento,Mortality=Mortality,Growth=Growth,
-            Transition,BA=BA, DeltaN=DeltaN,Recruits=Recruits,CR=CR,DeltaNT=DeltaNT)
-  return(res)
+  PTWAY1F[,i] <- pathfunction(p1,i)
+  PTWAY2F[,i] <- pathfunction(p2,i)
+  PTWAY3F[,i] <- pathfunction(p3,i)
+  PTWAY4F[,i] <- pathfunction(p4,i)
+  PTWAY5F[,i] <- pathfunction(p5,i)
 }
 
-n.iter<-180 #plots to check
-Y<-500
-#Ba_s<-numeric(n.iter)
-Ba_s<- matrix(0,n.iter,Y,byrow=T)
-Size.list <- vector("list", n.iter) # create list
-for(i in 1:n.iter){Size.list[[i]] <- matrix(0,Y,15,byrow=T)}
-do.call(rbind, Size.list)
-Basal<- numeric(n.iter)
-for (i in 1:n.iter){
-  recruit_calibra<-cali(stand,500,20) ## con500 recruits/ha
-  Ba_s[i,]<-recruit_calibra$BA
-  Basal[i]<-mean(recruit_calibra$BA)
-  Size.list[[i]]<-recruit_calibra$Size
-  print(i)
-}
+PTWAY1Fa <- as.data.frame(PTWAY1F)
+PTWAY1Fa$Year<-rep(c("I","A","B","C","D"),each=1000)
+PTWAY1Fa$Pathway<-rep("Path1", 1000)
+colnames(PTWAY1Fa)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+PTWAY2Fa <- as.data.frame(PTWAY2F)
+PTWAY2Fa$Year<-rep(c("I","A","B","C","D"),each=1000)
+PTWAY2Fa$Pathway<-rep("Path2", 1000)
+colnames(PTWAY2Fa)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+PTWAY3Fa <- as.data.frame(PTWAY3F)
+PTWAY3Fa$Year<-rep(c("I","A","B","C","D"),each=1000)
+PTWAY3Fa$Pathway<-rep("Path3", 1000)
+colnames(PTWAY3Fa)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+PTWAY4Fa <- as.data.frame(PTWAY4F)
+PTWAY4Fa$Year<-rep(c("I","A","B","C","D"),each=1000)
+PTWAY4Fa$Pathway<-rep("Path4", 1000)
+colnames(PTWAY4Fa)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
+PTWAY5Fa <- as.data.frame(PTWAY5F)
+PTWAY5Fa$Year<-rep(c("I","A","B","C","D"),each=1000)
+PTWAY5Fa$Pathway<-rep("Path5", 1000)
+colnames(PTWAY5Fa)<- c("NPP","NEP","NBP","SoilRespiration",
+                      "BiomassLiveCStock","SoilCStock","EcosystemCStock",
+                      "MineralSoil","Organic","WoodyDebris",
+                      "sn","sb","am","af","avf","asl","bgvf","bgf","bgs","Period","Pathway")
 
 
-##Get initial values at year 300 for different FRI
-Year<-300
-plots<-1000
-#Sc<-"Historical"
-#Season 1 Spring #2 Summer
-BasalArea<-Ba_s[,Year]
-#Recruitment<-Recruits_s[,Year]
-BiomassTurnover<-Turnover_s[1:plots,Year]
-Inputs<-sapply(DOM_Inputs_list, rowSums)
-Litterfall<-Inputs[Year,]
-MerchantableStemwood<-sapply(AbovegroundLiveBiomass_list, function(m) m[Year,1])
-Otherwood<-sapply(AbovegroundLiveBiomass_list, function(m) m[Year,2])
-Foliage<-sapply(AbovegroundLiveBiomass_list, function(m) m[Year,3])
-CoarseRoots<-sapply(BelowgroundLiveBiomass_list, function(m) m[Year,1])
-FineRoots<-sapply(BelowgroundLiveBiomass_list, function(m) m[Year,2])
-AGTotal<-MerchantableStemwood+Otherwood+Foliage #this should be the same as in sapplyTotallivem[500,1]
-BGTotal<-CoarseRoots+FineRoots #@yr500
-BiomassLiveCStock<-AGTotal+BGTotal
-BiomassLiveCStock1<-TotalLiveBiomass_s[1:plots,Year] #1:1000 plots @ yr500
-NPP<-PrimaryProductivity_s[1:plots,Year]
-SoilRespiration<-Rh_s[1:plots,Year]
-NEP<-NetEcosystemProduction_s[1:plots,Year]
-StandStructure<-Structure_s[1:plots,Year]
-#Intensities<-InitialIntensity_s[1:plots,1:Year]
-Snags<-sapply(DOM_Pool_list, function(m) m[Year,1]) #
-SnagBranch<-sapply(DOM_Pool_list, function(m) m[Year,2])
-AGMedium<-sapply(DOM_Pool_list, function(m) m[Year,3])
-AGfast<-sapply(DOM_Pool_list, function(m) m[Year,4])
-AGveryfast<-sapply(DOM_Pool_list, function(m) m[Year,5])
-AGslow<-sapply(DOM_Pool_list, function(m) m[Year,6])
-BGveryfast<-sapply(DOM_Pool_list, function(m) m[Year,7])
-BGfast<-sapply(DOM_Pool_list, function(m) m[Year,8])
-BGslow<-sapply(DOM_Pool_list, function(m) m[Year,9])
-SoilCStock<-Snags+SnagBranch+AGMedium+AGfast+AGveryfast+AGslow+BGveryfast+BGfast+BGslow
-EcosystemCStock<-BiomassLiveCStock1+SoilCStock
+All_f<-rbind(PTWAY1Fa,PTWAY2Fa,PTWAY3Fa,PTWAY4Fa,PTWAY5Fa)
+length(All_f[,1])
+head(All_f)
+KgMg<-(0.001)
+All_f[,1:19] <- with(All_f, All_f[,1:19]*KgMg)
+#All$Period<- ifelse(All$Year<31,"I",ifelse(All$Year>30&All$Year<61,"A", ifelse(All$Year>60&All$Year<91,"B","C")))
+#All$Period <- All$Year                                                 
+All_f$Period <- factor(All_f$Period,
+                     levels=c("I",'A','B','C','D'), ordered=TRUE)
+
+
+All_f$Pathway <- as.factor(All_f$Pathway)
+##Fluxes
+npp_f <- summarySE(All_f, measurevar="NPP", groupvars=c("Pathway","Period "))
+nep_f <- summarySE(All_f, measurevar="NEP", groupvars=c("Pathway","Period"))
+nbp_f <- summarySE(All_f, measurevar="NBP", groupvars=c("Pathway","Period"))
+soilr_f <- summarySE(All_f, measurevar="SoilRespiration", groupvars=c("Pathway","Period"))
+##Stocks
+ecs_f <- summarySE(All_f, measurevar="EcosystemCStock", groupvars=c("Pathway","Period"))
+soil_f<- summarySE(All_f, measurevar="SoilCStock", groupvars=c("Pathway","Period"))
+bcs_f <- summarySE(All_f, measurevar="BiomassLiveCStock", groupvars=c("Pathway","Period"))
+ol_f <- summarySE(All_f, measurevar="Organic", groupvars=c("Pathway","Period"))
+mscs_f <- summarySE(All_f, measurevar="MineralSoil", groupvars=c("Pathway","Period"))
+wd_f <- summarySE(All_f, measurevar="WoodyDebris", groupvars=c("Pathway","Period"))
+
+
+p9a <- ggplot(ecs_f, aes(x=Period, y=EcosystemCStock, group=Pathway)) + ylim(220,262) +
+  labs(x="Climatic Period",y="Total ecosystem C (MgC/ha)")+
+  geom_errorbar(aes(ymin=EcosystemCStock-ci, ymax=EcosystemCStock+ci), colour="black", width=.1)
+p9ab <- p9a+geom_point(aes(shape=factor(Pathway)), size=2)
+p9abc <- p9ab+theme_bw()
+p10 <- p9abc + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p10a <- p10+annotation_custom(my_grobA)
+
+
+p10ab <- ggplot(soil_f, aes(x=Period, y=SoilCStock , group=Pathway)) + ylim(160,205) +
+  labs(x="Climatic Period",y="DOM C (MgC/ha)")+
+  geom_errorbar(aes(ymin=SoilCStock-ci, ymax=SoilCStock +ci), colour="black", width=.1)
+p10abc <- p10ab + geom_point(aes(shape=factor(Pathway)), size=2)
+p11 <- p10abc+theme_bw()
+p11a <- p11 + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p11ab <- p11a + annotation_custom(my_grobB)
+
+
+
+p11abc <- ggplot(bcs_f, aes(x=Period, y=BiomassLiveCStock , group=Pathway)) + ylim(35,65) +
+  labs(x="Climatic Period",y="Total live Biomass C (MgC/ha)")+
+  geom_errorbar(aes(ymin=BiomassLiveCStock-ci, ymax=BiomassLiveCStock+ci), colour="black", width=.1)
+p12 <- p11abc + geom_point(aes(shape=factor(Pathway)), size=2)
+p12a <- p12+theme_bw()
+p12ab <- p12a + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p12abc <- p12ab + annotation_custom(my_grobC)
+
+
+
+p13 <- ggplot(ol_f, aes(x=Period, y=Organic, group=Pathway)) + ylim(35,50) +
+  labs(x="Climatic Period",y="Organic C (MgC/ha)")+
+  geom_errorbar(aes(ymin=Organic-ci, ymax=Organic+ci), colour="black", width=.1)
+p13a <- p13 + geom_point(aes(shape=factor(Pathway)), size=2)
+p13ab <- p13a + theme_bw()
+p13abc <- p13ab + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p14 <- p13abc + annotation_custom(my_grobD)
+
+
+p14a <- ggplot(wd_f, aes(x=Period, y=WoodyDebris, group=Pathway)) + ylim(30,50) +
+  labs(x="Climatic Period",y="Woody Debris C (MgC/ha)")+
+  geom_errorbar(aes(ymin=WoodyDebris-ci, ymax=WoodyDebris+ci), colour="black", width=.1)
+p14ab <- p14a+geom_point(aes(shape=factor(Pathway)), size=2)
+p14abc <- p14ab+theme_bw()
+p15 <- p14abc + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p15a <- p15+annotation_custom(my_grobE)
+
+
+p15ab <- ggplot(mscs_f, aes(x=Period, y=MineralSoil, group=Pathway)) + ylim(90,105) +
+  labs(x="Climatic Period",y="Mineral C (MgC/ha)")+
+  geom_errorbar(aes(ymin=MineralSoil-ci, ymax=MineralSoil+ci), colour="black", width=.1)
+p15abc <- p15ab+geom_point(aes(shape=factor(Pathway)), size=2.2)
+p16 <- p15abc+theme_bw()
+p16a <- p16 + theme(legend.position="none", title=black.12.text, axis.title = black.12.text, text=black.12.text)
+p16ab <- p16a+annotation_custom(my_grobF)
+
+
+stocks <- multiplot(p10a,p14,p11ab,p15a,p12abc,p16ab, cols=3)
+
+tiff('stocks.tiff', units="in", width=7, height=7, res=300)
+stocks <- multiplot(p10a,p14,p11ab,p15a,p12abc,p16ab, cols=3)
+dev.off()

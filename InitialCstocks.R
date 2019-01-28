@@ -25,17 +25,17 @@ library("stats")
 
 exe<-function(stand,Y,FRI){
   
-  #FRI<-916 ##Path1
+ #FRI<-916 ##Path1
   #FRIs <-916  ##Path2
   #FRIs <- 783  ##Path3
-  FRI <- 152  ##Path4
-  #FRIs <-783  ##Path5 
+  #FRI <- 152  ##Path4
+  FRIs <-783  ##Path5 
   CPool <- c(5.8, 2.1, 24, 9.89, 9.0, 36, 1.69, 3.75, 74) * MgKg
   #Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21"), d=PoolPlots2) ##path 1
   #Sampled <- subpop (path=c("Pathway22","Pathway23","Pathway24"), d=PoolPlots2) ##path 2
   #Sampled <- subpop (path=c("Pathway11","Pathway14","Pathway15","Pathway16"), d=PoolPlots2) ##path 3
-  Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
-  #Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
+  #Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
+  Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
  
   Sampled <- Sampled[sample(1:dim(Sampled)[1], size=1, replace=T),]
   PlotID <- Sampled[1,2]
@@ -211,36 +211,36 @@ exe<-function(stand,Y,FRI){
     Decayrate[8] <- AppDecayRates[8]
     Decayrate[9] <- AppDecayRates[9]
     
-   CarbonPoolTransferMatrix <- matrix(c(
-    Decayrate[1] * 0.83, (1-Decayrate[1]-0.032), 0, 0.032, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
-    Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
-    Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
-    Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
-    Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
-    Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
-    Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
-    Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
-    Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]), nrow = 9, ncol = 10, byrow = TRUE)
-    colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
-    "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
-    rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
-    "BGveryfast", "BGfast", "BGslow")
-    
     #CarbonPoolTransferMatrix <- matrix(c(
-    #Decayrate[1] * 0.83, (1-Decayrate[1]-0.08), 0, 0.08, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
+    #Decayrate[1] * 0.83, (1-Decayrate[1]-0.032), 0, 0.032, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
     #Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
     #Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
     #Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
     #Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
     #Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
     #Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
-    # Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
-    #Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]
-    #), nrow = 9, ncol = 10, byrow = TRUE)
-    #colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
-    #                                      "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
+    #Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
+    #Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]), nrow = 9, ncol = 10, byrow = TRUE)
+   #colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
+                                            #"AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
     #rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
-    #   "BGveryfast", "BGfast", "BGslow")
+                                            #"BGveryfast", "BGfast", "BGslow")
+    
+    CarbonPoolTransferMatrix <- matrix(c(
+    Decayrate[1] * 0.83, (1-Decayrate[1]-0.08), 0, 0.08, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
+    Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
+    Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
+    Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
+    Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
+    Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
+    Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
+     Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
+    Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]
+    ), nrow = 9, ncol = 10, byrow = TRUE)
+    colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
+                                          "AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
+    rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
+       "BGveryfast", "BGfast", "BGslow")
     
     
     
@@ -490,7 +490,7 @@ exe<-function(stand,Y,FRI){
 #abc<-exe(stand,100,916)
 
 
-n.iter <- 1000 #plots to check
+n.iter <- 100 #plots to check
 Y <- 2400
 #stand dynamics
 Ba_s<- matrix(0,n.iter,Y,byrow=T)
@@ -547,7 +547,7 @@ do.call(rbind, DOM_Inputs_list)
 do.call(rbind, DecayRates_list)
 
 for (i in 1:n.iter){
-  CarbonModel<-exe(stand,Y,FRI)
+  CarbonModel<-xe(stand,Y,FRI)
   Ba_s[i,]<-CarbonModel$BA
   Structure_s[i,]<-CarbonModel$Structure
   Recruits_s[i,]<-CarbonModel$Recruits
@@ -580,9 +580,9 @@ for (i in 1:n.iter){
 
 
 
-
+FRI <- 783
 Year <- 2400
-plots <- 1000
+plots <- 100
 BasalArea<-Ba_s[,Year]
 #Recruitment<-Recruits_s[,Year]
 BiomassTurnover<-Turnover_s[1:plots,Year]
@@ -615,4 +615,5 @@ Initial916NoClimatePath2 <- cbind(CEmissions,FireReturnInterval,StandStructure,B
 Initial783NoClimatePath3 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock,Gindex)
 Initial152NoClimatePath4 <- cbind(CEmissions,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock,Gindex)
 Initial783NoClimatePath5 <- cbind(CEmissions,FireReturnInterval,StandStructure,BasalArea,BiomassTurnover, Litterfall,NPP,SoilRespiration,NEP,NBP, Snags,SnagBranch,AGMedium,AGfast,AGveryfast,AGslow,BGveryfast,BGfast,BGslow,BiomassLiveCStock,SoilCStock,EcosystemCStock,Gindex)
-colMeans(Initial152NoClimatePath4)
+
+save("Initial783NoClimatePath5",file="Initial783NoClimatePath5.RData")

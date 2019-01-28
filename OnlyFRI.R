@@ -3,26 +3,47 @@
 
 
 exe <- function(stand,Y) {
-  #FRIs <- c(rep(916,30), rep(716,30), rep(458,30), rep(300,30)) ##Path1
+  FRIs <- c(rep(916,30), rep(716,30), rep(458,30), rep(300,30)) ##Path1
   #FRIs <- c(rep(916,30), rep(304,30), rep(241,30), rep(170,30))  ##Path2
   #FRIs <- c(rep(783,30), rep(212,30), rep(250,30), rep(248,30))  ##Path3
-  FRIs <- c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
+  #FRIs <- c(rep(152,30), rep(182,30), rep(289,30), rep(145,30))  ##Path4
   #FRIs <- c(rep(783,30), rep(1112,30), rep(735,30), rep(404,30))  ##Path5 
   
-  #Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21"), d=PoolPlots2) ##path 1
+  CPool <- c(4.9,1.5,24.9,9.0,9.1,35.1,1.6,3.4,95.0)* MgKg #Path1
+  #CPool <- c(5.0,1.6,27.0,9.7,10.0,36.8,1.7,3.7,97.8)* MgKg ##Path2
+  #CPool <- c(5.0,1.5,24.9,8.9,8.8,35.3,1.5,3.4,95.5)* MgKg ##Path3
+  #CPool <- c(5.0,1.8,24.8,9.2,8.7,35.7,1.5,3.2,94.9)* MgKg ##Path4
+  #CPool <- c(4.8,1.6,22.3,8.2,8.1,33.1,1.4,3.1,91.4)* MgKg ##Path5
+  
+ Sampled <- subpop (path=c("Pathway17","Pathway19","Pathway20","Pathway21"), d=PoolPlots2) ##path 1
   #Sampled <- subpop (path=c("Pathway22","Pathway23","Pathway24"), d=PoolPlots2) ##path 2
   #Sampled <- subpop (path=c("Pathway11","Pathway14","Pathway15","Pathway16"), d=PoolPlots2) ##path 3
-  Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
-  #Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
+  #Sampled <- subpop (path=c("Pathway26","Pathway28"), d=PoolPlots2) ##path 4
+ #Sampled <- subpop (path=c("Pathway1"), d=PoolPlots2) ##path 5
   Sampled <- Sampled[sample(1:dim(Sampled)[1], size=1, replace=T),]
   PlotID <- Sampled[1,2]
   WeatherPlot <- Sampled[1,1]
   Latitude <- Sampled[1,4]
   Longitude <- Sampled[1,5]
- 
   DroughtCodes <- GetDC(DroughtCode, WeatherPlot) 
   DroughtCode.List <- CorrectDupli(DroughtCodes)
   DCs <- as.numeric(DroughtCode.List[1:30,3]) ## Projected Drought Codes 1981-2100
+  Tree.List <- GetTrees (Tree,Plots=PlotID)
+  as.character(Tree.List$DBH)
+  as.factor(Tree.List$ESSENCE)
+  Tree.List <- as.data.frame(lapply(Tree.List[,],function(x)rep(x,25)))
+  range.DBH <- c(seq(1,30, by=2), 100)
+  #Resume the results by class
+  Tree.List$DBH <- as.numeric(Tree.List$DBH)
+  stand <- table(cut(Tree.List$DBH, breaks=range.DBH, labels=seq(1,15)))
+  stand[1:4] <- stand[1:4]*10
+  ###Partition the basal area of big trees >31 cm and add number of trees that the surplus of basal area represents
+  basal_big_class <- 0.0707905544
+  BAB <- rep(0,100)
+  TBA <- 3.142*(Tree.List[Tree.List[,3]>31,3]/200)^2
+  BAB <- round(TBA/basal_big_class,digits=0)
+  y <- sum(BAB)
+  stand[15] <- stand[15]+y
   n <- length(stand)
   N1s <- rep(1, n)
   N0s <- rep(0, n)
@@ -61,7 +82,6 @@ exe <- function(stand,Y) {
   RegenIrregular <- 55 # natural regeneration
   shannon <- diversity(stand[5:15], index = "shannon", MARGIN = 1, base = exp(1))  # shannon index
   RegenCohorts <- rpois(RegenLagTime, ifelse(shannon<1.7, RegenRegular, RegenIrregular))
-  CPool <- c(5.8, 2.1, 24, 9.89, 9.0, 36, 1.69, 3.75, 74) * MgKg
   Snags <- 0
   Snagbranches <- 0
   SnagFoliage <- 0
@@ -92,6 +112,11 @@ exe <- function(stand,Y) {
   Heights <- matrix(0, Y, n, byrow = TRUE)
   ShiftCrownratio <- matrix(0, Y, n, byrow = TRUE)
   ShiftHeights <- matrix(0, Y, n, byrow = TRUE)
+  Latitudes <- numeric(Y)
+  Longitudes <- numeric(Y)
+  DroughtCode <- numeric(Y)
+  EmpiricalTemperature <- numeric(Y)
+  CCGrowthIndex <- numeric(Y)
   DiameterGrowth <- matrix(0, Y, n, byrow = TRUE)
   SnagCProduction <- numeric(Y)
   SnagCProductionS <- numeric(Y)
@@ -103,12 +128,15 @@ exe <- function(stand,Y) {
   BioMass <- matrix(c(Stemwood(dbhq), Bark(dbhq), Branches(dbhq), Needles(dbhq), Coarse(dbhq), Fineroots(dbhq)), nrow = 6,
                     ncol = length(dbhq), byrow = TRUE)
   BioMassCarbon <- BioMass * biocar_factor  # Biomass C per diameter class
+  
+  
+  Merchantable <- c(0,0,0,0,Stemwood(dbhq[5:15])+Bark(dbhq[5:15]))
+  OtherWood <- c(Stemwood(dbhq[1:4])+Bark(dbhq[1:4]),rep(0,11))+ Branches(dbhq)
   InitialCBiomass <- sum(BioMassCarbon%*%as.matrix(stand))  # initial biomass for the site
   ICB <- InitialCBiomass  # initial biomass for the site
   NetPrimaryProductivity <- numeric(Y)
   TotalLiveBiomass <- numeric(Y)
   AppliedDecayRates <- matrix(0, Y, 9, byrow = TRUE)
-  EmpiricalTemperature <- numeric(Y)
   NetEcosystemProduction <- numeric(Y)
   Rh <- numeric(Y)
   MFRI <- numeric(Y)
@@ -120,97 +148,12 @@ exe <- function(stand,Y) {
   FuelConsumed <- numeric(Y) 
   PlotIDs <- numeric(Y)
   
-  # Initialise variables
-  Top <- ceiling(Height(dbhq))
-  Top <- ifelse(Top<2, rep(2, length(Top)), Top)
-  HeightUpdated <- Top
-  PCR <- crownratio(dbhq, sum(baq * stand))
-  CCR <- PCR
-  Base <- floor(HeightUpdated * (1-CCR))
-  Bark <- 0.032 * 2.54 * dbhq ##inches to cm!! Black spruce Equation taken from Behave plus fire modelling system  (thickness in cm)
-  hatom2 <- 1e4
-  b <- 3
-  DenCrit <- 0.11
-  iw <- dbhu-dbhl
-  BarkThickness <- 0.032 * 2.54 * dbhq
-  m2Ha  <- 1e4
-  biocar_factor <- 0.5
-  MgKg <- 1000
-  SaplingSurvival <- 0.98  # sapling survival of different initial sizes (Matthias et al. 2003)
-  NF <- 0
-  fire.year <- NULL
-  RegenLagTime <- 27   # assume it takes a 3-yr old natural seedling 27 yearss to grow to
-  # 214 cm (DBH 1.0 cm), VanBoagaert et al. 2015)
-  RegenRegular <- 60   # natural regeneration
-  RegenIrregular <- 55 # natural regeneration
-  shannon <- diversity(stand[5:15], index = "shannon", MARGIN = 1, base = exp(1))  # shannon index
-  RegenCohorts <- rpois(RegenLagTime, ifelse(shannon<1.7, RegenRegular, RegenIrregular))
-  Snags <- 0
-  Snagbranches <- 0
-  SnagFoliage <- 0
-  SnagCoarse <- 0
-  SnagFine <- 0
-  CC <- 0
-  
-  
-  # Initialize object variables to save simulation results
-  Size <- matrix(0, Y, n, byrow = TRUE)
-  PreFireStand <- matrix(0, Y, n, byrow = TRUE)
-  Recruits <- numeric(Y)
-  BA <- numeric(Y)
-  FireDeaths <- matrix(0, Y, n, byrow = TRUE)
-  Senescence <- matrix(0, Y, n, byrow = TRUE)
-  Transition <- matrix(0, Y, n, byrow = TRUE)  # transition probability
-  Crecimiento <- matrix(0, Y, n, byrow = TRUE)
-  Parcela <- matrix(0, Y, n, byrow = TRUE)
-  Muertos <- matrix(0, Y, n, byrow = TRUE)
-  Mortality <- matrix(0, Y, n, byrow = TRUE)  # probability of mortality
-  Structure <- numeric(Y)
-  InitialIntensity <- numeric(Y)
-  DroughtCode <- numeric(Y)
-  FireSize <- numeric(Y)
-  FireSeason <- numeric(Y)
-  BALost <- numeric(Y)
-  Delta_BA <- numeric(Y)
-  DeltaN <- matrix(0, Y, n, byrow = TRUE)
-  CR <- matrix(0, Y, n, byrow = TRUE)
-  Heights <- matrix(0, Y, n, byrow = TRUE)
-  Heights <- matrix(0, Y, n, byrow = TRUE)
-  ShiftCrownratio <- matrix(0, Y, n, byrow = TRUE)
-  ShiftHeights <- matrix(0, Y, n, byrow = TRUE)
-  DiameterGrowth <- matrix(0, Y, n, byrow = TRUE)
-  SnagCProduction <- numeric(Y)
-  SnagCProductionS <- numeric(Y)
-  SnagCProductionF <- numeric(Y)
-  Turnover <- numeric(Y)
-  DOMC_Pool <- matrix(0, Y, length(CPool), byrow = TRUE)
-  DOM_Flux <- numeric(Y)
-  DOM_Inputs <- matrix(0, Y, 9, byrow = TRUE)
-  BioMass <- matrix(c(Stemwood(dbhq), Bark(dbhq), Branches(dbhq), Needles(dbhq), Coarse(dbhq), Fineroots(dbhq)), nrow = 6,
-                    ncol = length(dbhq), byrow = TRUE)
-  BioMassCarbon <- BioMass * biocar_factor  # Biomass C per diameter class
-  InitialCBiomass <- sum(BioMassCarbon%*%as.matrix(stand))  # initial biomass for the site
-  ICB <- InitialCBiomass  # initial biomass for the site
-  NetPrimaryProductivity <- numeric(Y)
-  TotalLiveBiomass <- numeric(Y)
-  AppliedDecayRates <- matrix(0, Y, 9, byrow = TRUE)
-  EmpiricalTemperature <- numeric(Y)
-  NetEcosystemProduction <- numeric(Y)
-  Rh <- numeric(Y)
-  CarbonCombusted <- numeric(Y)
-  AnnualBiomassRecruits <- numeric(Y)
-  CarbonEmissions1 <- numeric(Y) 
-  CarbonEmissions2 <- numeric(Y) 
-  CarbonEmissions3 <- numeric(Y) 
-  NetBiomeProduction <- numeric(Y) 
-  FuelConsumed <- numeric(Y) 
 
-  
   # main loop
   for (y in 1:Y) {
     
     HeadIntensity <- sample(IntensitiesWeighted, size=1, replace=F)
-    I <- HeadIntensity
+    I <- as.numeric(HeadIntensity)
     Istart <- I
     DC <-  sample(DCs, size=1, replace=F)
     shannon <- diversity(stand[5:15], index = "shannon", MARGIN = 1, base = exp(1)) ##updated shannon
@@ -239,6 +182,8 @@ exe <- function(stand,Y) {
     CC2<- 0
     BALost[y] <- 0
     bay <- sum(stand * baq)
+    Latitudes [y] <- Latitude
+    Longitudes [y] <- Longitude
     MAT <- 0.36
     EmpiricalTemperature[y] <- MAT
     AppDecayRates <- Decayrates(MAT)
@@ -254,24 +199,7 @@ exe <- function(stand,Y) {
     Decayrate[8] <- AppDecayRates[8]
     Decayrate[9] <- AppDecayRates[9]
     
-    # Apply decay rates to CPools
-    #CarbonPoolTransferMatrix <- matrix(c(
-    #Decayrate[1] * 0.83, (1-Decayrate[1]-0.032), 0, 0.032, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
-    #Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
-    #Decayrate[3] * 0.83, 0, 0, 1-Decayrate[3], 0, 0, Decayrate[3] * (1-0.83), 0, 0, 0,
-    #Decayrate[4] * 0.83, 0, 0, 0, (1-Decayrate[4]), 0, Decayrate[4] * (1-0.83), 0, 0, 0,
-    #Decayrate[5] * 0.815, 0, 0, 0, 0, (1-Decayrate[5]), Decayrate[5] * (1-0.815), 0, 0, 0,
-    #Decayrate[6] * 1, 0, 0, 0, 0, 0, (1-Decayrate[6]-0.006), 0, 0, 0.006,
-    #Decayrate[7] * 0.83, 0, 0, 0, 0, 0, 0, (1-Decayrate[7]), 0, Decayrate[7] * (1-0.83),
-    #Decayrate[8] * 0.83, 0, 0, 0, 0, 0, 0, 0, (1-Decayrate[8]), Decayrate[8] * (1-0.83),
-    #Decayrate[9] * 1, 0, 0, 0, 0, 0, 0, 0, 0, 1-Decayrate[9]
-    #), nrow = 9, ncol = 10, byrow = TRUE)
-    #colnames(CarbonPoolTransferMatrix) <- c("Atm", "Snags", "Snagbranch", "Medium",
-    #"AGfast", "AGveryfast", "AGslow", "BGveryfast", "BGfast", "BGslow")
-    #rownames(CarbonPoolTransferMatrix) <- c("Snags", "Snagbranch", "Medium", "AGfast", "AGveryfast", "AGslow",
-    #"BGveryfast", "BGfast", "BGslow")
-    
-    
+  
     CarbonPoolTransferMatrix <- matrix(c(
     Decayrate[1] * 0.83, (1-Decayrate[1]-0.08), 0, 0.08, 0, 0, Decayrate[1] * (1-0.83), 0, 0, 0,
     Decayrate[2] * 0.83, 0, (1-Decayrate[2]-0.10), 0, 0.10, 0, Decayrate[2] * (1-0.83), 0, 0, 0,
@@ -439,14 +367,6 @@ exe <- function(stand,Y) {
     HeightRecruits  <- Recruits[y] * Top[1]
     Parcela[y, ] <- stand  # stand after regeneration, captures regeneration pulses
     
-    # Add recruitment
-    
-    Recruits[y] <- RegenCohorts[RegenLagTime]
-    RegenCohorts <- c(NewRegen, RegenCohorts[1:RegenLagTime - 1])
-    stand[1] <- stand[1] + Recruits[y]
-    CCRRecruits  <- Recruits[y] * PCR[1]
-    HeightRecruits  <- Recruits[y] * Top[1]
-    Parcela[y, ] <- stand  # stand after regeneration, captures regeneration pulses
     
     # Update biomass
     Biomass <- sum(BioMassCarbon %*% as.matrix(stand))
@@ -591,8 +511,6 @@ do.call(rbind, DecayRates_list)
 
 for (i in 1:n.iter){
   CarbonModel <- exe(stand,Y)
-  Latitude_s [i,] <- CarbonModel$Latitudes
-  Longitude_s [i,] <- CarbonModel$Longitudes
   MFRI_s [i,] <- CarbonModel$MFRI
   Ba_s[i,]<-CarbonModel$BA
   Structure_s[i,]<-CarbonModel$Structure
@@ -609,7 +527,7 @@ for (i in 1:n.iter){
   SnagCProduction_s[i,] <- CarbonModel$SnagCProduction
   PrimaryProductivity_s[i,] <- CarbonModel$NetPrimaryProductivity
   NetEcosystemProduction_s[i,] <- CarbonModel$NetEcosystemProduction
-  NetBiomeProduction_s[i,] <- CarbonModel$NetBiomeProduction
+  #NetBiomeProduction_s[i,] <- CarbonModel$NetBiomeProduction
   Rh_s[i,] <- CarbonModel$Rh
   Turnover_s[i,] <- CarbonModel$Turnover
   DOM_Pool_list[[i]] <- CarbonModel$DOMC_Pool
@@ -647,7 +565,6 @@ BGslow <- sapply(DOM_Pool_list, function(m) m[1:120,9])
 SoilCStock1 <- Snags+SnagBranch+AGMedium+AGfast+AGveryfast+AGslow+BGveryfast+BGfast+BGslow
 SoilCStock <- t(SoilCStock1)
 EcosystemCStock <- BiomassLiveCStock + SoilCStock
-
 MineralSoil <- t(BGveryfast+BGslow)
 Organic <- t(AGveryfast+AGslow)
 WoodyDebris <- t(Snags+SnagBranch+AGfast+AGMedium)
@@ -661,8 +578,17 @@ bgvf <- t(BGveryfast)
 bgf <- t(BGfast)
 bgs <- t(BGslow)
 
-Path4onlyFRI <- list(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
+Path1onlyFRI <- list(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
                sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
+Path2onlyFRI <- list(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
+                     sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
+Path3onlyFRI <- list(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
+                     sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
+Path4onlyFRI <- list(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
+                     sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
+
+Path5onlyFRI <- list(NPP,NEP,NBP,SoilRespiration,BiomassLiveCStock,SoilCStock,EcosystemCStock,MineralSoil,Organic,WoodyDebris,
+                     sn,sb,am,af,avf,asl,bgvf,bgf,bgs)
 
 save("Path1onlyFRI", file = "Path1onlyFRI.RData")
 save("Path2onlyFRI", file = "Path2onlyFRI.RData")
