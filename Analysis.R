@@ -223,6 +223,17 @@ rc4 <-tapply(All4$EcosystemCStock, All4$Period, mean)
 All5<- All[which(All$Pathway=="Path5"),]
 rc5 <-tapply(All5$EcosystemCStock, All5$Period, mean)
 
+All1<- All[which(All$Pathway=="Path1"),]
+rc1 <- tapply(All1$MineralSoil, All1$Period, mean)
+All2<- All[which(All$Pathway=="Path2"),]
+rc2 <-tapply(All2$MineralSoil, All2$Period, mean)
+All3<- All[which(All$Pathway=="Path3"),]
+rc3 <-tapply(All3$MineralSoil, All3$Period, mean)
+All4<- All[which(All$Pathway=="Path4"),]
+rc4 <-tapply(All4$MineralSoil, All4$Period, mean)
+All5<- All[which(All$Pathway=="Path5"),]
+rc5 <-tapply(All5$MineralSoil, All5$Period, mean)
+
 ratechangeeco1 <- ratechangeE(rc1)
 ratechangeeco2 <- ratechangeE(rc2)
 ratechangeeco3 <- ratechangeE(rc3)
