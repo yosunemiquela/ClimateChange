@@ -11,3 +11,5 @@ The model uses as input inventory plot data, historical fire records (fire inten
 
 The inventory plot data belongs to the Québec Ministry (Ministère des Forêts, de la Faune et des Parcs), and it is not transferable. Data was made available for research purposes through the Université Laval library (http://geoindex-plus.bibl.ulaval.ca/), under the agreement held between the government and the university. Inventory plot data is available on request by contacting the forest inventory division of the ministry (http://www.mffp.gouv.qc.ca/forets/inventaire/). All interested researchers can access the data in the same way the authors did. The authors confirm that the historical fire data underlying the findings can be obtained from Figshare: http://figshare.com/account/projects/5641. 
 The data shared here contains preprocessed and strcutured information that serves as model input.
+
+![alt text](https://github.com/yosunemiquela/ClimateChange/blob/master/ProjectedFireregime.png)
