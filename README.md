@@ -1,4 +1,4 @@
-# Modelling Carbon Dynamics responses to climate change in Boreal Forests of Eastern Canada
+# Responses of forest carbon storage to climate change 
 ### Author: Dr. Yosune Miquelajauregui Graf
 
 ### About this model
