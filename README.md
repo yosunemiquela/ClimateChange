@@ -1,7 +1,7 @@
 # Modelling Carbon Dynamics responses to climate change in Boreal Forests of Eastern Canada
-#Author: Dr. Yosune Miquelajauregui Graf
+Author: Dr. Yosune Miquelajauregui Graf
 
-#About this model
+About this model
 Diameter-size structured mdoel, coupled with a boreal soil C dynamics model and a fire effects model.
 This hybrid approach is used to evaluate reponses of carbon stocks to climate change. Effects of climate on tree growth, decomposition rates and fire regime are incorporated.
 
